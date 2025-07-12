@@ -7,4 +7,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Data\Database\" />
+    <Folder Include="Domain\PathHolder\" />
+    <Folder Include="Domain\Extension\" />
+  </ItemGroup>
+
 </Project>
