@@ -99,7 +99,7 @@ public class UserService : IUserService
         Console.WriteLine($"User {Username} has been updated successfully.");
     }
 
-    void IUserService.UpdateUserPassword(string Username, string OldPassword, string NewPassword, string ConfirmPassword)
+    void IUserService.ChangeUserPassword(string Username, string OldPassword, string NewPassword, string ConfirmPassword)
     {
         Checker.CheckerMethod(Username);
         if (NewPassword != ConfirmPassword)

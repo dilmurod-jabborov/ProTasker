@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ProTasker.Domain.Extension;
 
-public static class ReadFileToListExtansion
+public static class TextToListExtension
 {
     public static List<T> TextToObjectList<T>(this string text) where T : new()
     {

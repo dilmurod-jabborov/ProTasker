@@ -1,6 +1,6 @@
 ﻿namespace ProTasker.Domain.Extension;
 
-public static class ToWriteFileLinesExtansion
+public static class ListToTextExtension
 {
     private static string ToTextWriteLine<T>(this T obj)
     {
