@@ -1,4 +1,4 @@
-﻿using ProTasker.DTOModels;
+﻿using ProTasker.DTOModels.Worker;
 
 namespace ProTasker.Data.IRepository;
 

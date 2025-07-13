@@ -8,9 +8,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Domain\Extension\**" />
+    <Compile Remove="Domain\PathHolder\**" />
+    <EmbeddedResource Remove="Domain\Extension\**" />
+    <EmbeddedResource Remove="Domain\PathHolder\**" />
+    <None Remove="Domain\Extension\**" />
+    <None Remove="Domain\PathHolder\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Data\Database\" />
-    <Folder Include="Domain\PathHolder\" />
-    <Folder Include="Domain\Extension\" />
   </ItemGroup>
 
 </Project>
