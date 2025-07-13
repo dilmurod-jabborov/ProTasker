@@ -1,4 +1,5 @@
 ﻿using ProTasker.Data.IRepository;
+using ProTasker.Data.ListsOfUsersAndWorkers;
 using ProTasker.Data.UserList;
 using ProTasker.Domain.Models;
 using ProTasker.Helpers;
@@ -8,15 +9,43 @@ namespace ProTasker.Data.Repository;
 public class UserService : IUserService
 {
     UserList.UserList lists = new UserList.UserList();
+    WorkerList workerList = new WorkerList();
 
-    public List<string> GetAllWorkers()
+    public void GetAllWorkers()
     {
-
+        foreach (var lines in workerList.Workers)
+        {
+            var line = lines.Split('\n');
+            foreach (var item in line)
+            {
+                var workerDetails = item.Split(',');
+                Console.WriteLine($"Id: {workerDetails[0]}," +
+                    $" Username: {workerDetails[1]}," +
+                    $" Category: {workerDetails[2]}," +
+                    $" Gender: {workerDetails[3]}," +
+                    $" Rating: {workerDetails[4]}," +
+                    $" Location: {workerDetails[5]}");
+            }
+        }
     }
 
-    public List<string> GetAllWorkersByLocation(Location location)
+    public string GetAllWorkersByLocation(Location location)
     {
-        throw new NotImplementedException();
+        Checker.CheckerMethod(location.ToString());
+        var workersByLocation = new List<string>();
+        foreach (var lines in workerList.Workers)
+        {
+            var line = lines.Split('\n');
+            foreach (var item in line)
+            {
+                var workerDetails = item.Split(',');
+                if (workerDetails[5] == location.ToString())
+                {
+                    workersByLocation.Add(item);
+                }
+            }
+        }
+        return string.Join("\n", workersByLocation);
     }
 
     void IUserService.DeleteUser(string Username)
