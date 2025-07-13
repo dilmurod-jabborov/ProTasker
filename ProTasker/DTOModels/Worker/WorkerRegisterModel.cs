@@ -1,7 +1,7 @@
 ﻿using ProTasker.Domain.Enum;
 using ProTasker.Domain.Models;
 
-namespace ProTasker.DTOModels;
+namespace ProTasker.DTOModels.Worker;
 
 public class WorkerRegisterModel
 {

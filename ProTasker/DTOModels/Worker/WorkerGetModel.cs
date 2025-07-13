@@ -1,9 +1,9 @@
 ﻿using ProTasker.Domain.Enum;
 using ProTasker.Domain.Models;
 
-namespace ProTasker.DTOModels;
+namespace ProTasker.DTOModels.Worker;
 
-public class WorkerUpdateModel
+public class WorkerGetModel
 {
     public string FullName { get; set; }
     public string PhoneNumber { get; set; }

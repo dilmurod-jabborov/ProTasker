@@ -1,7 +1,13 @@
-﻿namespace ProTasker.Domain.Models;
+﻿using ProTasker.Constants;
+using ProTasker.Helpers;
 
-public class Admin
+namespace ProTasker.Domain.Models;
+
+public class Admin : Account
 {
-    public string FullName { get; } = "Dilmurod";
-    public string Password { get; } = "1234";
+    public Admin()
+    {
+        Id = GeneratorHelper.GenerateId(PathHolder.AdminsFilePath);
+    }
+    public int Id { get; set; }
 }
