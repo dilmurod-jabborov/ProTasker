@@ -22,7 +22,7 @@ public class AccountService<T> where T : Account, new()
         var existaccount = accounts.Find(a => a.PhoneNumber == account.PhoneNumber);
 
         if(existaccount!=null) 
-            throw new Exception("Bu raqam bilan akkaunt mavjud!");
+            throw new Exception("There is an account with this number!");
 
         var newObj=account.ToNewObjDest<T>(); 
         
@@ -43,14 +43,5 @@ public class AccountService<T> where T : Account, new()
             ?? throw new Exception("Login or password is wrong!");
 
         return existsAccount;
-    }
-
-    // Fayldan barcha accountlarni o'qish
-    private List<T> LoadAccounts()
-    {
-        if (!File.Exists(filePath)) return new List<T>();
-
-        string text = File.ReadAllText(filePath);
-        return text.ToObjectList<T>(); // Reflection orqali
     }
 }

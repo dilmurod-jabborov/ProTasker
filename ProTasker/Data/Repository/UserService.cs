@@ -1,18 +1,20 @@
-﻿using ProTasker.Data.IRepository;
-using ProTasker.Data.ListsOfUsersAndWorkers;
-using ProTasker.Data.UserList;
+﻿using ProTasker.Constants;
+using ProTasker.Data.IRepository;
+using ProTasker.Domain.Extension;
 using ProTasker.Domain.Models;
+using ProTasker.DTOModels.User;
 using ProTasker.Helpers;
 
 namespace ProTasker.Data.Repository;
-
+/// <summary>
+/// 
+/// </summary>
 public class UserService : IUserService
 {
-    UserList.UserList lists = new UserList.UserList();
-    WorkerList workerList = new WorkerList();
-
-    public void GetAllWorkers()
+    public void GetAllWorkers() // bu umuman bu yerda turishi mantiqsiz olib tashla
     {
+
+
         foreach (var lines in workerList.Workers)
         {
             var line = lines.Split('\n');
@@ -29,7 +31,7 @@ public class UserService : IUserService
         }
     }
 
-    public string GetAllWorkersByLocation(Location location)
+    public string GetAllWorkersByLocation(Location location) //Bu kerakmas bu yerda o'chir
     {
         Checker.CheckerMethod(location.ToString());
         var workersByLocation = new List<string>();
@@ -48,7 +50,7 @@ public class UserService : IUserService
         return string.Join("\n", workersByLocation);
     }
 
-    void IUserService.DeleteUser(string Username)
+    public void DeleteUser(string Username)  // Id bo'yicha ishlaymiz to'g'irla
     {
         Checker.CheckerMethod(Username);
 
@@ -64,7 +66,7 @@ public class UserService : IUserService
         }
     }
 
-    string IUserService.GetUserByUsername(string Username)
+    public string GetUserByUsername(string Username) // Kerakmas bu
     {
         Checker.CheckerMethod(Username);
         foreach (var lines in lists.Users)
@@ -82,29 +84,30 @@ public class UserService : IUserService
         return string.Empty;
     }
 
-    void IUserService.UpdateUser(string Username, string Phonenumber, int age)
+    public void UpdateUser(UserUpdateModel model)
     {
-        Checker.CheckerMethod(Username);
-        lists.Users = lists.Users.Select(user =>
-        {
-            var userDetails = user.Split(',');
-            if (userDetails[1] == Username)
-            {
-                userDetails[2] = Phonenumber;
-                userDetails[5] = age.ToString();
-                return string.Join(",", userDetails);
-            }
-            return user;
-        }).ToList();
-        Console.WriteLine($"User {Username} has been updated successfully.");
+        Checker.CheckerMethod(model.FirstName);
+        Checker.CheckerMethod(model.LastName);
+        
+        var text = FileHelper.ReadFromFile(PathHolder.UsersFilePath);
+
+        var users = text.TextToObjectList<User>();
+
+        var existUser = users.Find(u => u.PhoneNumber == model.PhoneNumber);
+        if (existUser == null)
+            throw new Exception("This user is not found!");
+
+        var updateLines = model.UpdateByObj<UserUpdateModel, User>(users, PathHolder.UsersFilePath, existUser.Id);
+
+        FileHelper.WriteToFile(PathHolder.UsersFilePath, updateLines);
     }
 
-    void IUserService.ChangeUserPassword(string Username, string OldPassword, string NewPassword, string ConfirmPassword)
+    public void ChangeUserPassword(string OldPassword, string NewPassword, string ConfirmPassword)  // buni ham hatolarini to'g'irla 
     {
         Checker.CheckerMethod(Username);
         if (NewPassword != ConfirmPassword)
         {
-            throw new ArgumentException("New password and confirm password do not match.");
+            throw new Exception("New password and confirm password do not match.");
         }
         foreach (var lines in lists.Users)
         {
