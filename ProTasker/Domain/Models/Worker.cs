@@ -13,6 +13,7 @@ public class Worker
 
 
     public int Id { get; set; }
+    public string Name { get; set; }
     public string Bio { get; set; }
     public List<int> CategoryId { get; set; }
     public Gender Gender { get; set; }
