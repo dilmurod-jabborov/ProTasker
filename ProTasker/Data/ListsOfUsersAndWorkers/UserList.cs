@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ProTasker.Constants;
 using ProTasker.Domain.Enum;
 
 namespace ProTasker.Data.UserList
 {
     internal class UserList
     {
-        public List<string> Users = new List<string>();
+
+        public List<string> Users = File.ReadAllLines(PathHolder.UsersFilePath).ToList();
         private int userId = 1;
         public void AddUser(string username, string phonenumber, string password, Role role, int age)
         {

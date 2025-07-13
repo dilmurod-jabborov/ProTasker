@@ -51,6 +51,6 @@ public class AccountService<T> where T : Account, new()
         if (!File.Exists(filePath)) return new List<T>();
 
         string text = File.ReadAllText(filePath);
-        return text.ToObjectList<T>(); // Reflection orqali
+        return text.TextToObjectList<T>(); // Reflection orqali
     }
 }

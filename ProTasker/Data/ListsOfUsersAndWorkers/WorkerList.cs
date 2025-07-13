@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ProTasker.Constants;
 using ProTasker.Domain.Enum;
 using ProTasker.Domain.Models;
 
@@ -10,7 +11,7 @@ namespace ProTasker.Data.ListsOfUsersAndWorkers
 {
     internal class WorkerList
     {
-        public List<string> Workers = new List<string>();
+        public List<string> Workers = File.ReadAllLines(PathHolder.WorkersFilePath).ToList();
         private int workerId = 1;
         public void AddWorker(string name, string bio, Category category, Gender gender, string Rating, Location location)
         {
