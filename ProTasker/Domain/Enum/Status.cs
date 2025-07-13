@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace ProTasker.Domain.Enum;
 
-namespace ProTasker.Domain.Enum
+public enum Status
 {
-    internal class Status
-    {
-    }
+    Busy,
+    Available,
+    Offline
 }
