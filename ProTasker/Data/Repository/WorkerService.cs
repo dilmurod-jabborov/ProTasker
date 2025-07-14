@@ -9,6 +9,7 @@ namespace ProTasker.Data.Repository;
 
 public class WorkerService : IWorkerService
 {
+    // ChangeWorkerPassword method yozish kere
     public void Register(WorkerRegisterModel model)
     {
         var text = FileHelper.ReadFromFile(PathHolder.WorkersFilePath);
