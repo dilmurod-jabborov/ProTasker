@@ -16,8 +16,4 @@
     <None Remove="Domain\PathHolder\**" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Data\Database\" />
-  </ItemGroup>
-
 </Project>

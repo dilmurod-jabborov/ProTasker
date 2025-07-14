@@ -104,6 +104,28 @@ public static class TextToListExtension
     
         return users;
     }
+
+    public static List<Category> ToCategory(this string text)
+    {
+        List<Category> categories= new();
+
+        string[] lines = text.Split('\n');
+
+        foreach (string line in lines)
+        {
+            if (string.IsNullOrWhiteSpace(line)) continue;
+
+            string[] parts = line.Split(',');
+
+            categories.Add(new Category
+            {
+                Id = int.Parse(parts[0]),
+                Name = parts[1],
+            });
+        }
+
+        return categories;
+    }
 }
 
 

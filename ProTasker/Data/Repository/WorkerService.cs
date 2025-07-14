@@ -46,25 +46,25 @@ public class WorkerService : IWorkerService
         throw new NotImplementedException();
     }
 
-    public WorkerViewModel GetWorker(int id)
-    {
-        var text = FileHelper.ReadFromFile(PathHolder.WorkersFilePath);
+    //public WorkerViewModel GetWorker(int id)
+    //{
+    //    var text = FileHelper.ReadFromFile(PathHolder.WorkersFilePath);
 
-        var workers = text.TextToObjectList<Worker>();
+    //    var workers = text.TextToObjectList<Worker>();
 
-        var worker = workers.Find(w => w.Id == id)
-            ?? throw new Exception("This worker is not found!");
+    //    var worker = workers.Find(w => w.Id == id)
+    //        ?? throw new Exception("This worker is not found!");
 
-        return new WorkerViewModel()
-        {
-            FirstName = worker.FirstName,
-            LastName = worker.LastName,
-            PhoneNumber = worker.PhoneNumber,
-            Bio = worker.Bio,
-            Age = worker.Age,
-            CategoryId=worker.CategoryId,
-            Gender= worker.Gender,
-            Location = worker.Location
-        };
-    }
+    //    return new WorkerViewModel()
+    //    {
+    //        FirstName = worker.FirstName,
+    //        LastName = worker.LastName,
+    //        PhoneNumber = worker.PhoneNumber,
+    //        Bio = worker.Bio,
+    //        Age = worker.Age,
+    //        CategoryId=worker.CategoryId,
+    //        Gender= worker.Gender,
+    //        Location = worker.Location
+    //    };
+    //}
 }

@@ -15,7 +15,7 @@ internal class Program
         {
             FirstName = "Ali",
             LastName = "Valiyev",
-            PhoneNumber = "998901234567",
+            PhoneNumber = "99855",
             Password = "12345",
             Role = Role.User,
             Age = 25,
@@ -32,17 +32,28 @@ internal class Program
 
         workerService.Register(worker);
 
-        Console.WriteLine("✅ Worker muvaffaqiyatli ro'yxatdan o'tdi!");
+        //CategoryService categoryService = new CategoryService();
+        //categoryService.Create("ALi");
+        // categoryService.Create("Alo");
+        // categoryService.Create("ALi");
 
-        var worker = workerService.GetWorker(1);
+        //categoryService.Update(2, "mohinur");
 
-        Console.WriteLine($"Fname - {worker.FirstName}" +
-            $"Lname - {worker.LastName}" +
-            $"Phon - {worker.PhoneNumber}" +
-            $"Bio - {worker.Bio}" +
-            $"Age - {worker.Age}" +
-            $"Category - {worker.CategoryId}" +
-            $"Gender - {worker.Gender}" +
-            $"Loc - {worker.Location}");
+        // categoryService.Delete(3); 
+
+        //categoryService.Get(1);
+
+        //categoryService.GetAll();
+
+        //var worker1 = workerService.GetWorker(1);
+
+        //Console.WriteLine($"Fname - {worker.FirstName}" +
+        //    $"Lname - {worker1.LastName}" +
+        //    $"Phon - {worker1.PhoneNumber}" +
+        //    $"Bio - {worker1.Bio}" +
+        //    $"Age - {worker1.Age}" +
+        //    $"Category - {worker1.CategoryId}" +
+        //    $"Gender - {worker1.Gender}" +
+        //    $"Loc - {worker1.Location}");
     }
 }
