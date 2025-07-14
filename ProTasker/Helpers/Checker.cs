@@ -39,5 +39,31 @@ namespace ProTasker.Helpers
                 throw new ArgumentException("Id must be a positive integer.", nameof(Id));
             }
         }
+        public static void CheckerMethod(string Password, string ConfirmPassword)
+        {
+            if (string.IsNullOrEmpty(Password))
+            {
+                throw new ArgumentException("Password cannot be null or empty.", nameof(Password));
+            }
+            if (Password.Length < 6)
+            {
+                throw new ArgumentException("Password must be at least 6 characters long.", nameof(Password));
+            }
+            if (Password != ConfirmPassword)
+            {
+                throw new ArgumentException("Passwords do not match.", nameof(ConfirmPassword));
+            }
+        }
+        public static void CheckerMethodForNumber(string PhoneNumber)
+        {
+            if (string.IsNullOrEmpty(PhoneNumber))
+            {
+                throw new ArgumentException("Phone number cannot be null or empty.", nameof(PhoneNumber));
+            }
+            if (PhoneNumber.Length < 13)
+            {
+                throw new ArgumentException("Phone number must be 13 characters long.", nameof(PhoneNumber));
+            }
+        }
     }
 }
