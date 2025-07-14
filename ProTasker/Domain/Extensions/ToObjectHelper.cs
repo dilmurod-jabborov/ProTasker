@@ -2,25 +2,23 @@
 
 public static class ToObjectHelper
 {
-    public static TDestination ToNewObjDest<TDestination>(this object source) where TDestination : new()
+    public static T ToNewObjDest<T>(this object model) where T : new()
     {
-        var dest = new TDestination();
-        var destProps = typeof(TDestination).GetProperties();
-        var srcProps = source.GetType().GetProperties();
+        T result = new T();
 
-        foreach (var destProp in destProps)
+        var modelProps = model.GetType().GetProperties();
+        var resultProps = typeof(T).GetProperties();
+
+        foreach (var prop in resultProps)
         {
-            var srcProp = srcProps.FirstOrDefault(p => p.Name == destProp.Name &&
-                                                  p.PropertyType == destProp.PropertyType);
-            if (srcProp != null)
+            var modelProp = modelProps.FirstOrDefault(p => p.Name == prop.Name);
+            if (modelProp != null)
             {
-                var value = srcProp.GetValue(source);
-                destProp.SetValue(dest, value);
+                var value = modelProp.GetValue(model);
+                prop.SetValue(result, value);
             }
         }
 
-        return dest;
+        return result;
     }
 }
-
-

@@ -1,4 +1,6 @@
-﻿namespace ProTasker.Domain.Extension;
+﻿using ProTasker.Domain.Models;
+
+namespace ProTasker.Domain.Extension;
 
 public static class ListToTextExtension
 {
@@ -14,5 +16,17 @@ public static class ListToTextExtension
     public static List<string> ToTextWriteLines<T>(this List<T> list)
     {
         return list.Select(item => item.ToTextWriteLine()).ToList();
+    }
+
+    public static List<string> ConvertToString<T>(this List<T> users)
+    {
+        var convertedUser = new List<string>();
+
+        foreach (var user in users)
+        {
+            convertedUser.Add(user.ToString());
+        }
+
+        return convertedUser;
     }
 }

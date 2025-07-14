@@ -9,5 +9,5 @@ public interface IUserService
     void ChangeUserPassword(string Username, string OldPassword, string NewPassword, string ConfirmPassword);
     string GetUserByUsername(string Username);
     void GetAllWorkers();
-    string GetAllWorkersByLocation(Location location);
+    string GetAllWorkersByLocation(string location);
 }

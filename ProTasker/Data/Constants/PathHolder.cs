@@ -9,12 +9,17 @@ namespace ProTasker.Constants
 {
     public static class PathHolder
     {
-        private static readonly string parentRoot = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName;
+        private static readonly string baseRoot =
+            Path.Combine(AppContext.BaseDirectory, "..", "..", "..");
 
-        public static readonly string UsersFilePath = Path.Combine(parentRoot, "Data", "users.txt");
-        public static readonly string WorkersFilePath = Path.Combine(parentRoot, "Data", "workers.txt");
-        public static readonly string AdminsFilePath = Path.Combine(parentRoot, "Data", "admins.txt");
+        public static readonly string UsersFilePath =
+            Path.Combine(baseRoot, "Data", "Database", "users.txt");
+
+        public static readonly string WorkersFilePath =
+            Path.Combine(baseRoot, "Data", "Database", "workers.txt");
+
+        public static readonly string AdminsFilePath =
+            Path.Combine(baseRoot, "Data", "Database", "admins.txt");
     }
-
 }
 
