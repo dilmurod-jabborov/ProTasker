@@ -48,7 +48,7 @@ public static class TextToListExtension
 
             string[] parts = line.Split(',');
 
-            var locParts = parts[10].Split('|');
+            var locParts = parts[10].Split('|', StringSplitOptions.RemoveEmptyEntries);
 
             var location = new Location()
             {

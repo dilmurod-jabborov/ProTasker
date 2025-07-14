@@ -12,5 +12,5 @@ public class WorkerViewModel
     public int Age {  get; set; }
     public List<int> CategoryId { get; set; }
     public Gender Gender { get; set; }
-    public string Location { get; set; }
+    public Location Location { get; set; }
 }
