@@ -18,15 +18,15 @@ public static class ListToTextExtension
         return list.Select(item => item.ToTextWriteLine()).ToList();
     }
 
-    public static List<string> ConvertToString<T>(this List<T> users)
+    public static List<string> ConvertToString<T>(this List<T> lists)
     {
-        var convertedUser = new List<string>();
+        var convertedlist = new List<string>();
 
-        foreach (var user in users)
+        foreach (var list in lists)
         {
-            convertedUser.Add(user.ToString());
+            convertedlist.Add(list.ToString());
         }
 
-        return convertedUser;
+        return convertedlist;
     }
 }

@@ -20,6 +20,9 @@ namespace ProTasker.Constants
 
         public static readonly string AdminsFilePath =
             Path.Combine(baseRoot, "Data", "Database", "admins.txt");
+
+        public static readonly string CategoryFilePath = 
+            Path.Combine(baseRoot, "Data", "Database", "workCategory.txt");
     }
 }
 
