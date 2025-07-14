@@ -32,5 +32,12 @@ namespace ProTasker.Helpers
                 throw new ArgumentException("Username cannot contain whitespace.", nameof(Username));
             }
         }
+        public static void CheckerMethod(int Id)
+        {
+            if (Id <= 0)
+            {
+                throw new ArgumentException("Id must be a positive integer.", nameof(Id));
+            }
+        }
     }
 }
