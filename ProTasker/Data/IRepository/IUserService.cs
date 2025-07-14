@@ -1,13 +1,13 @@
 ﻿using ProTasker.Domain.Models;
+using ProTasker.DTOModels.User;
 
 namespace ProTasker.Data.IRepository;
 
 public interface IUserService
 {
-    void DeleteUser(string Username);
-    void UpdateUser(string Username, string Phonenumber, int age);
-    void ChangeUserPassword(string Username, string OldPassword, string NewPassword, string ConfirmPassword);
-    string GetUserByUsername(string Username);
-    void GetAllWorkers();
-    string GetAllWorkersByLocation(string location);
+    void DeleteUser(User Id);
+    void UpdateUser(UserUpdateModel model);
+    void ChangeUserPassword(UserPasswordUpdate passwordUpdate);
+    void Register(UserRegissterModel model);
+    void Login(string phoneNumber, string password);
 }

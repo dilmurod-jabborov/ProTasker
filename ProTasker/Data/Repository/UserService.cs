@@ -1,123 +1,121 @@
-﻿//using ProTasker.Constants;
-//using ProTasker.Data.IRepository;
-//using ProTasker.Domain.Extension;
-//using ProTasker.Domain.Models;
-//using ProTasker.DTOModels.User;
-//using ProTasker.Helpers;
+﻿using System.Reflection;
+using ProTasker.Constants;
+using ProTasker.Data.IRepository;
+using ProTasker.Domain.Extension;
+using ProTasker.Domain.Models;
+using ProTasker.DTOModels.User;
+using ProTasker.Helpers;
 
-//namespace ProTasker.Data.Repository;
+namespace ProTasker.Data.Repository;
 
-//public class UserService : IUserService
-//{
-//    public void GetAllWorkers() // bu umuman bu yerda turishi mantiqsiz olib tashla
-//    {
+public class UserService : IUserService
+{
 
+    public void DeleteUser(User Id)
+    {
+        Checker.CheckerMethod(Id.Id);
 
-//        foreach (var lines in workerList.Workers)
-//        {
-//            var line = lines.Split('\n');
-//            foreach (var item in line)
-//            {
-//                var workerDetails = item.Split(',');
-//                Console.WriteLine($"Id: {workerDetails[0]}," +
-//                    $" Username: {workerDetails[1]}," +
-//                    $" Category: {workerDetails[2]}," +
-//                    $" Gender: {workerDetails[3]}," +
-//                    $" Rating: {workerDetails[4]}," +
-//                    $" Location: {workerDetails[5]}");
-//            }
-//        }
-//    }
+        var text = FileHelper.ReadFromFile(PathHolder.UsersFilePath);
 
-//    public string GetAllWorkersByLocation(Location location) //Bu kerakmas bu yerda o'chir
-//    {
-//        Checker.CheckerMethod(location.ToString());
-//        var workersByLocation = new List<string>();
-//        foreach (var lines in workerList.Workers)
-//        {
-//            var line = lines.Split('\n');
-//            foreach (var item in line)
-//            {
-//                var workerDetails = item.Split(',');
-//                if (workerDetails[5] == location.ToString())
-//                {
-//                    workersByLocation.Add(item);
-//                }
-//            }
-//        }
-//        return string.Join("\n", workersByLocation);
-//    }
+        var users = text.ToUser();
 
-//    public void DeleteUser(string Username)  // Id bo'yicha ishlaymiz to'g'irla
-//    {
-//        Checker.CheckerMethod(Username);
+        var existUser = users.Find(u => u.Id == Id.Id);
 
-//        foreach (var lines in lists.Users)
-//        {
-//            lines.Split('\n');
-//            if (lines.Contains(Username))
-//            {
-//                lists.Users.Remove(lines);
-//                Console.WriteLine($"User {Username} has been deleted successfully.");
-//                return;
-//            }
-//        }
-//    }
+        if (existUser != null)
+        {
+            users.Remove(existUser);
+            var updateLines = Id.UpdateByObj<User, User>(users, PathHolder.UsersFilePath, existUser.Id);
+            FileHelper.WriteToFile(PathHolder.UsersFilePath, updateLines);
+        }
+        else
+        {
+            throw new Exception("This user is not found!");
+        }
+    }
 
-//    public string GetUserByUsername(string Username) // Kerakmas bu
-//    {
-//        Checker.CheckerMethod(Username);
-//        foreach (var lines in lists.Users)
-//        {
-//            var line = lines.Split('\n');
-//            foreach (var item in line)
-//            {
-//                var userDetails = item.Split(',');
-//                if (userDetails[1] == Username)
-//                {
-//                    return item.ToString();
-//                }
-//            }
-//        }
-//        return string.Empty;
-//    }
+    public void UpdateUser(UserUpdateModel model)
+    {
+        Checker.CheckerMethod(model.FirstName);
+        Checker.CheckerMethod(model.LastName);
 
-//    public void UpdateUser(UserUpdateModel model)
-//    {
-//        Checker.CheckerMethod(model.FirstName);
-//        Checker.CheckerMethod(model.LastName);
+        var text = FileHelper.ReadFromFile(PathHolder.UsersFilePath);
 
-//        var text = FileHelper.ReadFromFile(PathHolder.UsersFilePath);
+        var users = text.ToUser();
 
-//        var users = text.TextToObjectList<User>();
+        var existUser = users.Find(u => u.PhoneNumber == model.PhoneNumber);
+        if (existUser == null)
+            throw new Exception("This user is not found!");
 
-//        var existUser = users.Find(u => u.PhoneNumber == model.PhoneNumber);
-//        if (existUser == null)
-//            throw new Exception("This user is not found!");
+        var updateLines = model.UpdateByObj<UserUpdateModel, User>(users, PathHolder.UsersFilePath, existUser.Id);
 
-//        var updateLines = model.UpdateByObj<UserUpdateModel, User>(users, PathHolder.UsersFilePath, existUser.Id);
+        FileHelper.WriteToFile(PathHolder.UsersFilePath, updateLines);
+    }
 
-//        FileHelper.WriteToFile(PathHolder.UsersFilePath, updateLines);
-//    }
+    public void ChangeUserPassword(UserPasswordUpdate passwordUpdate)
+    {
+        Checker.CheckerMethod(passwordUpdate.UserName);
+        Checker.CheckerMethod(passwordUpdate.OldPassword);
+        Checker.CheckerMethod(passwordUpdate.NewPassword, passwordUpdate.ConfirmPassword);
 
-//    public void ChangeUserPassword(string OldPassword, string NewPassword, string ConfirmPassword)  // buni ham hatolarini to'g'irla 
-//    {
-//        Checker.CheckerMethod(Username);
-//        if (NewPassword != ConfirmPassword)
-//        {
-//            throw new Exception("New password and confirm password do not match.");
-//        }
-//        foreach (var lines in lists.Users)
-//        {
-//            var userDetails = lines.Split(',');
-//            if (userDetails[1] == Username && userDetails[3] == OldPassword)
-//            {
-//                userDetails[3] = NewPassword;
-//                Console.WriteLine($"Password for {Username} has been updated successfully.");
-//                return;
-//            }
-//        }
-//    }
+        if (passwordUpdate.NewPassword != passwordUpdate.ConfirmPassword)
+        {
+            throw new Exception("New password and confirm password do not match.");
+        }
 
-//}
+        var text = FileHelper.ReadFromFile(PathHolder.UsersFilePath);
+
+        var users = text.ToUser();
+
+        var existUser = users.Find(u => u.FirstName == passwordUpdate.UserName && u.Password == passwordUpdate.OldPassword);
+
+        if (existUser == null)
+        {
+            throw new Exception("User not found or old password is incorrect.");
+        }
+
+        existUser.Password = passwordUpdate.NewPassword;
+
+        var updateLines = existUser.UpdateByObj<User, User>(users, PathHolder.UsersFilePath, existUser.Id);
+
+        if (updateLines == null || updateLines.Count == 0)
+        {
+            throw new Exception("Failed to update user password.");
+        }
+
+        FileHelper.WriteToFile(PathHolder.UsersFilePath, updateLines);
+    }
+
+    public void Register(UserRegissterModel model)
+    {
+        Checker.CheckerMethod(model.FullName);
+        Checker.CheckerMethodForNumber(model.PhoneNumber);
+        Checker.CheckerMethod(model.Password);
+
+        var text = FileHelper.ReadFromFile(PathHolder.UsersFilePath);
+        var users = text.ToUser();
+        var exists = users.Find(u => u.PhoneNumber == model.PhoneNumber);
+        if (exists != null)
+            throw new Exception("This phone number is already registered!");
+        var newUser = model.ToNewObjDest<User>();
+        users.Add(newUser);
+        FileHelper.WriteToFile(PathHolder.UsersFilePath, users.ConvertToString<User>());
+    }
+    public void Login(string phoneNumber, string password)
+    {
+        Checker.CheckerMethod(phoneNumber);
+        Checker.CheckerMethod(password);
+        var text = FileHelper.ReadFromFile(PathHolder.UsersFilePath);
+        var users = text.ToUser();
+        var user = users.Find(u => u.PhoneNumber == phoneNumber && u.Password == password);
+        if (user == null)
+        {
+            throw new Exception("Invalid phone number or password.");
+        }
+        else
+        {
+            Console.WriteLine($"Welcome {user.FirstName}-{user.LastName}!");
+        }
+        // Login davom etadi
+    }
+}
 
