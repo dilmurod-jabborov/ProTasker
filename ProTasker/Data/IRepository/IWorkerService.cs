@@ -7,5 +7,6 @@ public interface IWorkerService
     void Register(WorkerRegisterModel model);
     int Login(string phoneNumber,  string password);
     void Update(WorkerUpdateModel model);
-    
+    // void ChangeWorkerPassword(WorkerPasswordUpdate wpasswordUpdate);
+
 }
