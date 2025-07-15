@@ -13,7 +13,7 @@ namespace ProTasker.Data.IRepository
     {
         public void DeleteUser(User Id);
         public void UpdateUser(UserUpdateModel model);
-        public void RegisterUser(UserRegissterModel model);
+        public void RegisterUser(UserRegisterModel model);
         public void ChangeUserPassword(UserPasswordUpdate upasswordUpdate);
         public void LoginAdmin(string username, string password);
         public void DeleteWorker(Worker Id);

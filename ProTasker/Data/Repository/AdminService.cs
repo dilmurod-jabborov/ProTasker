@@ -93,7 +93,7 @@ namespace ProTasker.Data.Repository
             Console.WriteLine("Admin logged in successfully.");
         }
 
-        void IAdminService.RegisterUser(UserRegissterModel model)
+        void IAdminService.RegisterUser(UserRegisterModel model)
         {
             userService.Register(model);
         }

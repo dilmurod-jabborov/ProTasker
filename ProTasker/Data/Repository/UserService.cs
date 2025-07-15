@@ -10,33 +10,27 @@ namespace ProTasker.Data.Repository;
 
 public class UserService : IUserService
 {
-
-    public void DeleteUser(User Id)
+    public void DeleteUser(int id)
     {
-        Checker.CheckerMethod(Id.Id);
-
         var text = FileHelper.ReadFromFile(PathHolder.UsersFilePath);
 
         var users = text.ToUser();
 
-        var existUser = users.Find(u => u.Id == Id.Id);
+        var existUser = users.Find(u => u.Id == id);
+        if (existUser == null)
+        {
+             throw new Exception("This user is not found!");
+        }
+        
+        users.Remove(existUser);
 
-        if (existUser != null)
-        {
-            users.Remove(existUser);
-            var updateLines = Id.UpdateByObj<User, User>(users, PathHolder.UsersFilePath, existUser.Id);
-            FileHelper.WriteToFile(PathHolder.UsersFilePath, updateLines);
-        }
-        else
-        {
-            throw new Exception("This user is not found!");
-        }
+        FileHelper.WriteToFile(PathHolder.UsersFilePath, users.ConvertToString<User>());
     }
 
     public void UpdateUser(UserUpdateModel model)
     {
-        Checker.CheckerMethod(model.FirstName);
-        Checker.CheckerMethod(model.LastName);
+        Checker.CheckerMethod(model.FirstName); //bu method umuman keremas
+        Checker.CheckerMethod(model.LastName); ///////
 
         var text = FileHelper.ReadFromFile(PathHolder.UsersFilePath);
 
@@ -48,44 +42,33 @@ public class UserService : IUserService
 
         var updateLines = model.UpdateByObj<UserUpdateModel, User>(users, PathHolder.UsersFilePath, existUser.Id);
 
-        FileHelper.WriteToFile(PathHolder.UsersFilePath, updateLines);
+        FileHelper.WriteToFile(PathHolder.UsersFilePath, updateLines.ConvertToString<User>());
     }
 
-    public void ChangeUserPassword(UserPasswordUpdate passwordUpdate)
+    public void ChangeUserPassword(string phoneNumber, string oldPassword, string newPassword)
     {
-        Checker.CheckerMethod(passwordUpdate.UserName);
-        Checker.CheckerMethod(passwordUpdate.OldPassword);
-        Checker.CheckerMethod(passwordUpdate.NewPassword, passwordUpdate.ConfirmPassword);
-
-        if (passwordUpdate.NewPassword != passwordUpdate.ConfirmPassword)
-        {
-            throw new Exception("New password and confirm password do not match.");
-        }
-
         var text = FileHelper.ReadFromFile(PathHolder.UsersFilePath);
 
         var users = text.ToUser();
 
-        var existUser = users.Find(u => u.FirstName == passwordUpdate.UserName && u.Password == passwordUpdate.OldPassword);
+        var existUser = users.Find(u => u.PhoneNumber == phoneNumber);
 
         if (existUser == null)
         {
-            throw new Exception("User not found or old password is incorrect.");
+            throw new Exception("Phone number not found or old password is incorrect.");
         }
 
-        existUser.Password = passwordUpdate.NewPassword;
+        if (existUser.Password == newPassword)
+            throw new Exception("The old and new password should not be the same!");
 
-        var updateLines = existUser.UpdateByObj<User, User>(users, PathHolder.UsersFilePath, existUser.Id);
+        newPassword.CheckerPassword();
 
-        if (updateLines == null || updateLines.Count == 0)
-        {
-            throw new Exception("Failed to update user password.");
-        }
+        existUser.Password = newPassword;
 
-        FileHelper.WriteToFile(PathHolder.UsersFilePath, updateLines);
+        FileHelper.WriteToFile(PathHolder.UsersFilePath, users.ConvertToString<User>());
     }
 
-    public void Register(UserRegissterModel model)
+    public void Register(UserRegisterModel model)
     {
         Checker.CheckerMethod(model.FullName);
         Checker.CheckerMethodForNumber(model.PhoneNumber);
