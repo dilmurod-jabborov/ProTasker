@@ -5,8 +5,11 @@ namespace ProTasker.Data.IRepository;
 public interface IWorkerService
 {
     void Register(WorkerRegisterModel model);
-    int Login(string phoneNumber,  string password);
+    WorkerViewModel Login(string phoneNumber,  string password);
     void Update(WorkerUpdateModel model);
-    // void ChangeWorkerPassword(WorkerPasswordUpdate wpasswordUpdate);
+    void Delete(int id);
+    List<WorkerViewModel> GetAllWorkers();
+    WorkerViewModel GetWorker(int id);
+
 
 }

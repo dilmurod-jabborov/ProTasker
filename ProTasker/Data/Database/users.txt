@@ -1,0 +1,2 @@
+1,Ali,Valiyev,+998947157279,Dilmurod_03,User,25,Male
+3,Vali,Aliyev,+998947157277,,Admin,120,Female

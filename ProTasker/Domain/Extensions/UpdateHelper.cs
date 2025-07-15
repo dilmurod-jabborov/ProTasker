@@ -2,7 +2,7 @@
 
 public static class UpdateHelper
 {
-    public static List<string> UpdateByObj<TSource, TTarget>(
+    public static List<TTarget> UpdateByObj<TSource, TTarget>(
         this TSource updatedObj,
         List<TTarget> list,
         string filePath,
@@ -14,7 +14,7 @@ public static class UpdateHelper
             x.GetType().GetProperty("Id")?.GetValue(x)?.ToString() == id.ToString());
 
         if (index == -1)
-            throw new Exception("Obyekt topilmadi!");
+            throw new Exception("Obyekt not found!");
 
         var updatedTarget = new TTarget();
 
@@ -40,7 +40,7 @@ public static class UpdateHelper
 
         list[index] = updatedTarget;
 
-        return list.ToTextWriteLines();
+        return list;
     }
 }
 

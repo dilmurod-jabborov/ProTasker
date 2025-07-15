@@ -5,65 +5,79 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ProTasker.Helpers
+namespace ProTasker.Helpers;
+
+public static class Checker
 {
-    internal static class Checker
+    public static void CheckerMethod(string Username)
     {
-        public static void CheckerMethod(string Username)
+        if (string.IsNullOrEmpty(Username))
         {
-            if (string.IsNullOrEmpty(Username))
-            {
-                throw new ArgumentException("Username cannot be null or empty.", nameof(Username));
-            }
-            if (Username.Length < 3)
-            {
-                throw new ArgumentException("Username must be at least 3 characters long.", nameof(Username));
-            }
-            if (Username.Length > 30)
-            {
-                throw new ArgumentException("Username cannot exceed 50 characters.", nameof(Username));
-            }
-            if (!Username.All(char.IsLetterOrDigit))
-            {
-                throw new ArgumentException("Username can only contain letters and digits.", nameof(Username));
-            }
-            if (Username.Any(char.IsWhiteSpace))
-            {
-                throw new ArgumentException("Username cannot contain whitespace.", nameof(Username));
-            }
+            throw new ArgumentException("Username cannot be null or empty.", nameof(Username));
         }
-        public static void CheckerMethod(int Id)
+        if (Username.Length < 3)
         {
-            if (Id <= 0)
-            {
-                throw new ArgumentException("Id must be a positive integer.", nameof(Id));
-            }
+            throw new ArgumentException("Username must be at least 3 characters long.", nameof(Username));
         }
-        public static void CheckerMethod(string Password, string ConfirmPassword)
+        if (Username.Length > 30)
         {
-            if (string.IsNullOrEmpty(Password))
-            {
-                throw new ArgumentException("Password cannot be null or empty.", nameof(Password));
-            }
-            if (Password.Length < 6)
-            {
-                throw new ArgumentException("Password must be at least 6 characters long.", nameof(Password));
-            }
-            if (Password != ConfirmPassword)
-            {
-                throw new ArgumentException("Passwords do not match.", nameof(ConfirmPassword));
-            }
+            throw new ArgumentException("Username cannot exceed 50 characters.", nameof(Username));
         }
-        public static void CheckerMethodForNumber(string PhoneNumber)
+        if (!Username.All(char.IsLetterOrDigit))
         {
-            if (string.IsNullOrEmpty(PhoneNumber))
-            {
-                throw new ArgumentException("Phone number cannot be null or empty.", nameof(PhoneNumber));
-            }
-            if (PhoneNumber.Length < 13)
-            {
-                throw new ArgumentException("Phone number must be 13 characters long.", nameof(PhoneNumber));
-            }
+            throw new ArgumentException("Username can only contain letters and digits.", nameof(Username));
         }
+        if (Username.Any(char.IsWhiteSpace))
+        {
+            throw new ArgumentException("Username cannot contain whitespace.", nameof(Username));
+        }
+    }
+
+    public static void CheckerMethod(string Password, string ConfirmPassword)
+    {
+        if (string.IsNullOrEmpty(Password))
+        {
+            throw new ArgumentException("Password cannot be null or empty.", nameof(Password));
+        }
+        if (Password.Length < 6)
+        {
+            throw new ArgumentException("Password must be at least 6 characters long.", nameof(Password));
+        }
+        if (Password != ConfirmPassword)
+        {
+            throw new ArgumentException("Passwords do not match.", nameof(ConfirmPassword));
+        }
+    }
+    public static void CheckerMethodForNumber(string PhoneNumber)
+    {
+        if (string.IsNullOrEmpty(PhoneNumber))
+        {
+            throw new ArgumentException("Phone number cannot be null or empty.", nameof(PhoneNumber));
+        }
+        if (PhoneNumber.Length < 13)
+        {
+            throw new ArgumentException("Phone number must be 13 characters long.", nameof(PhoneNumber));
+        }
+    }
+
+    public static void CheckerPassword(this string Password)
+    {
+        if (string.IsNullOrEmpty(Password))
+            throw new Exception("Password is null or empty!");
+
+        if(Password.Length < 6) 
+            throw new Exception($"There must be at least 6 characters!");
+
+        if (!Password.Any(char.IsUpper))
+            throw new Exception("The password must contain at least one capital letter!");
+
+        if (!Password.Any(char.IsLower))
+            throw new Exception("The password must contain at least one lowercase letter!");
+
+        if (!Password.Any(char.IsDigit))
+            throw new Exception("The password must contain at least one number!");
+
+        if (!Password.Any(ch => "!@#$%^&*()_+-=<>?/[]{}".Contains(ch)))
+            throw new Exception("The password must contain at least one special character!");
     }
 }

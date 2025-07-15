@@ -1,2 +1,5 @@
-1,Ali,Valiyev,998901234567,12345,User,25,Santexnik,1;3;5,Male,Tashkent|Olmazor|Shifokor
-2,Ali,Valiyev,99855,12345,User,25,Santexnik,1;3;5,Male,Tashkent|Olmazor|Shifokor
+1,Ali,Valiyev,9471572552221,12345,User,25,Santexnik,1;3;5,Male,Tashkent|Olmazor|Shifokor
+2,Ali,Valiyev,94715725521,12345,User,25,Santexnik,1;3;5,Male,Tashkent|Olmazor|Shifokor
+3,Ali,Valiyev,9471572551,12345,User,25,Santexnik,1;3;5,Male,Tashkent|Olmazor|Shifokor
+4,Ali,Valiyev,947157255000,12345,User,25,Santexnik,1;3;5,Male,Tashkent|Olmazor|Shifokor
+5,Ali,Valiyev,94715755500,12345,User,25,Santexnik,1;3;5,Male,Tashkent|Olmazor|Shifokor

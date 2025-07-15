@@ -18,15 +18,15 @@ namespace ProTasker.Data.Repository
         UserService userService = new UserService();
         WorkerService workerService = new WorkerService();
         Admin admin = new Admin();
-        void IAdminService.ChangeUserPassword(UserPasswordUpdate upasswordUpdate)
-        {
-            userService.ChangeUserPassword(upasswordUpdate);
-        }
+        //void IAdminService.ChangeUserPassword(UserPasswordUpdate upasswordUpdate)
+        //{
+        //    userService.ChangeUserPassword(upasswordUpdate);
+        //}
 
-        void IAdminService.ChangeWorkerPassword(WorkerPasswordUpdate wpasswordUpdate)
-        {
-           // workerService.ChangeWorkerPassword(wpasswordUpdate);  
-        }
+        //void IAdminService.ChangeWorkerPassword(WorkerPasswordUpdate wpasswordUpdate)
+        //{
+        //   // workerService.ChangeWorkerPassword(wpasswordUpdate);  
+        //}
 
         void IAdminService.DeleteCategory(Category Id)
         {
@@ -35,7 +35,7 @@ namespace ProTasker.Data.Repository
 
         void IAdminService.DeleteUser(User Id)
         {
-            userService.DeleteUser(Id);
+           // userService.DeleteUser(Id);
         }
 
         void IAdminService.DeleteWorker(Worker Id)

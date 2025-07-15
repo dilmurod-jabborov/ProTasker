@@ -1,6 +1,7 @@
 ﻿using ProTasker.Data.Repository;
 using ProTasker.Domain.Enum;
 using ProTasker.Domain.Models;
+using ProTasker.DTOModels.User;
 using ProTasker.DTOModels.Worker;
 
 namespace ProTasker;
@@ -10,12 +11,14 @@ internal class Program
     static void Main(string[] args)
     {
         WorkerService workerService = new WorkerService();
+        UserService userService = new UserService();
+
 
         //var worker = new WorkerRegisterModel
         //{
         //    FirstName = "Ali",
         //    LastName = "Valiyev",
-        //    PhoneNumber = "99855",
+        //    PhoneNumber = "94715755500",
         //    Password = "12345",
         //    Role = Role.User,
         //    Age = 25,
@@ -32,7 +35,20 @@ internal class Program
 
         //workerService.Register(worker);
 
-        var worker = workerService.GetWorker(2);
+        //var user = new UserUpdateModel
+        //{
+        //    FirstName = "Vali",
+        //    LastName = "Aliyev",
+        //    PhoneNumber = "+998947157277",
+        //    Age = 120,
+        //    Gender = Gender.Female,
+        //};
+
+        //userService.UpdateUser(user);
+
+        Console.WriteLine("Muvaffaqqiyatli yangilandi");
+
+        var worker = workerService.GetWorker(3);
 
         Console.WriteLine($"Fname - {worker.FirstName}\n" +
             $"Lname - {worker.LastName}\n" +
@@ -43,5 +59,7 @@ internal class Program
             $"Destrict - {worker.Location.District}\n" +
             $"Street - {worker.Location.Street}\n" +
             $"Works - {worker.CategoryId[0]},{worker.CategoryId[1]}");
+
     }
+        
 }

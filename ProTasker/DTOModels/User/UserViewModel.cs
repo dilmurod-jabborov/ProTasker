@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ProTasker.Domain.Enum;
 
-namespace ProTasker.DTOModels.User
+namespace ProTasker.DTOModels.User;
+
+public class UserViewModel
 {
-    internal class UserViewModel
-    {
-    }
+    public string FirstName {  get; set; }
+    public string LastName { get; set; }
+    public string PhoneNumber { get; set; }
+    public int Age {  get; set; }
+    public Gender Gender { get; set; }
 }
