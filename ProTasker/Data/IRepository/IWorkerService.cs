@@ -10,6 +10,5 @@ public interface IWorkerService
     void Delete(int id);
     List<WorkerViewModel> GetAllWorkers();
     WorkerViewModel GetWorker(int id);
-
-
+    void ChangePassword(int id, string oldPassword, string newPassword);
 }

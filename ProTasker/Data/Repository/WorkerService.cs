@@ -153,4 +153,23 @@ public class WorkerService : IWorkerService
 
         return workersList;
     }
+
+    public void ChangePassword(int id, string oldPassword, string newPassword)
+    {
+        var text = FileHelper.ReadFromFile(PathHolder.WorkersFilePath);
+
+        var workers = text.ToWorkers();
+
+        var existWorker = workers.Find(u => u.Id == id && u.Password == oldPassword)
+            ?? throw new Exception("This worker is not found or old password is incorrect!");
+
+        newPassword.CheckerPassword();
+        if (existWorker.Password == oldPassword)
+            throw new Exception("The old and new password should not be the same!");
+
+        existWorker.Password = newPassword;
+
+
+        FileHelper.WriteToFile(PathHolder.WorkersFilePath, workers.ConvertToString<Worker>());
+    }
 }
