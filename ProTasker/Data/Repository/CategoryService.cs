@@ -27,42 +27,6 @@ public class CategoryService : ICategoryService
         FileHelper.WriteToFile(PathHolder.CategoryFilePath, categories.ConvertToString<Category>());
     }
 
-    public void Delete(int id)
-    {
-        var text = FileHelper.ReadFromFile(PathHolder.CategoryFilePath);
-
-        var categories = text.ToCategory();
-
-        var existCategory = categories.Find(x => x.Id == id)
-            ?? throw new Exception($"this does not exist yet");
-
-        categories.Remove(existCategory);
-
-        FileHelper.WriteToFile(PathHolder.CategoryFilePath, categories.ConvertToString<Category>());
-    }
-
-    public string Get(int id)
-    {
-        var text = FileHelper.ReadFromFile(PathHolder.CategoryFilePath);
-
-        var categories = text.ToCategory();
-
-        var existCategory = categories.Find(x => x.Id == id)
-             ?? throw new Exception($"that kind of category does not exist");
-
-        return existCategory.Name;
-    }
-
-
-    public List<Category> GetAll()
-    {
-        var text = FileHelper.ReadFromFile(PathHolder.CategoryFilePath);
-
-        var categories = text.ToCategory();
-
-        return categories;
-    }
-
     public void Update(int id, string name)
     {
         var text = FileHelper.ReadFromFile(PathHolder.CategoryFilePath);
@@ -79,5 +43,41 @@ public class CategoryService : ICategoryService
 
         FileHelper.WriteToFile(PathHolder.CategoryFilePath, categories.ConvertToString<Category>());
     }
+
+    public string Get(int id)
+    {
+        var text = FileHelper.ReadFromFile(PathHolder.CategoryFilePath);
+
+        var categories = text.ToCategory();
+
+        var existCategory = categories.Find(x => x.Id == id)
+             ?? throw new Exception($"that kind of category does not exist");
+
+        return existCategory.Name;
+    }
+
+    public void Delete(int id)
+    {
+        var text = FileHelper.ReadFromFile(PathHolder.CategoryFilePath);
+
+        var categories = text.ToCategory();
+
+        var existCategory = categories.Find(x => x.Id == id)
+            ?? throw new Exception($"this does not exist yet");
+
+        categories.Remove(existCategory);
+
+        FileHelper.WriteToFile(PathHolder.CategoryFilePath, categories.ConvertToString<Category>());
+    }
+
+    public List<Category> GetAll()
+    {
+        var text = FileHelper.ReadFromFile(PathHolder.CategoryFilePath);
+
+        var categories = text.ToCategory();
+
+        return categories;
+    }
+
 }
 

@@ -10,31 +10,32 @@ namespace ProTasker.Domain.Extension;
 
 public static class TextToListExtension
 {
-    //public static List<Booking> ToBooking(this string text)
-    //{
-    //    List<Booking> bookings = new List<Booking>();
+    public static List<Admin> ToAdmins(this string text)
+    {
+        List<Admin> admins = new List<Admin>();
 
-    //    string[] lines = text.Split('\n');
+        string[] lines = text.Split('\n');
 
-    //    foreach (string line in lines)
-    //    {
-    //        if (string.IsNullOrWhiteSpace(line)) continue;
+        foreach (string line in lines)
+        {
+            if (string.IsNullOrWhiteSpace(line)) continue;
 
-    //        string[] parts = line.Split(',');
+            string[] parts = line.Split(',');
 
-    //        bookings.Add(new Booking
-    //        {
-    //            Id = int.Parse(parts[0]),
-    //            UserId = int.Parse(parts[1]),
-    //            StadiumId = int.Parse(parts[2]),
-    //            StartTime = DateTime.Parse(parts[3]),
-    //            EndTime = DateTime.Parse(parts[4]),
-    //            Price = decimal.Parse(parts[5])
-    //        });
-    //    }
+            admins.Add(new Admin
+            {
+                Id = int.Parse(parts[0]),
+                FirstName = (parts[1]),
+                LastName = (parts[2]),
+                PhoneNumber = (parts[3]),
+                Password = (parts[4]),
+                Role = System.Enum.Parse<Role>(parts[5]),
+                Age = int.Parse(parts[6])
+            });
+        }
 
-    //    return bookings;
-    //}
+        return admins;
+    }
 
     public static List<Worker> ToWorkers(this string text)
     {

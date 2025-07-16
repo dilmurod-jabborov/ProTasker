@@ -74,7 +74,7 @@ public class WorkerService : IWorkerService
         if (existWorker == null)
             throw new Exception("This worker is not found!");
 
-        var updateLines = model.UpdateByObj<WorkerUpdateModel, Worker>(workers, PathHolder.WorkersFilePath, existWorker.Id);
+        var updateLines = model.UpdateByObj<WorkerUpdateModel, Worker>(workers, PathHolder.WorkersFilePath, existWorker.PhoneNumber);
 
         FileHelper.WriteToFile(PathHolder.UsersFilePath, updateLines.ConvertToString<Worker>());
     }
