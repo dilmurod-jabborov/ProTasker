@@ -14,7 +14,7 @@ namespace ProTasker.Data.IRepository
     {
         void Register(AdminRegisterModel model);
         AdminViewModel Login(string phoneNumber, string password);
-        void Update(int id, AdminUpdateModel model);
+        void Update(string phoneNumber, AdminUpdateModel model);
         void Logout(int id);
         void ChangePassword(string phoneNumber, string oldPassword, string newPassword);
     }

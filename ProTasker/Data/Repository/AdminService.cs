@@ -47,13 +47,13 @@ public class AdminService : IAdminService
         };
     }
     
-    public void Update(int id, AdminUpdateModel model)
+    public void Update(string phoneNumber, AdminUpdateModel model)
     {
         var text = FileHelper.ReadFromFile(PathHolder.AdminsFilePath);
 
         var admins = text.ToAdmins();
 
-        var existsAdmin = admins.Find(a => a.Id == id)
+        var existsAdmin = admins.Find(a => a.PhoneNumber == phoneNumber)
                 ?? throw new Exception("This admin is not found!");
 
         var updAdmins = model.UpdateByObj<AdminUpdateModel, Admin>(admins, PathHolder.AdminsFilePath, existsAdmin.PhoneNumber);
