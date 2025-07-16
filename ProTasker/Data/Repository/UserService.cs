@@ -67,7 +67,7 @@ public class UserService : IUserService
         if (existUser == null)
             throw new Exception("This user is not found!");
 
-        var updateLines = model.UpdateByObj<UserUpdateModel, User>(users, PathHolder.UsersFilePath, existUser.Id);
+        var updateLines = model.UpdateByObj<UserUpdateModel, User>(users, PathHolder.UsersFilePath, existUser.PhoneNumber);
 
         FileHelper.WriteToFile(PathHolder.UsersFilePath, updateLines.ConvertToString<User>());
     }
@@ -137,4 +137,3 @@ public class UserService : IUserService
         throw new NotImplementedException();
     }
 }
-

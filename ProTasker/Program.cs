@@ -48,17 +48,17 @@ internal class Program
 
         Console.WriteLine("Muvaffaqqiyatli yangilandi");
 
-        var worker = workerService.GetWorker(3);
+        workerService.GetWorker(3);
 
-        Console.WriteLine($"Fname - {worker.FirstName}\n" +
-            $"Lname - {worker.LastName}\n" +
-            $"Phon - {worker.PhoneNumber}\n" +
-            $"Bio - {worker.Bio}\n" +
-            $"Age - {worker.Age}\n" +
-            $"Region - {worker.Location.Region}\n" +
-            $"Destrict - {worker.Location.District}\n" +
-            $"Street - {worker.Location.Street}\n" +
-            $"Works - {worker.CategoryId[0]},{worker.CategoryId[1]}");
+        //Console.WriteLine($"Fname - {worker.FirstName}\n" +
+        //    $"Lname - {worker.LastName}\n" +
+        //    $"Phon - {worker.PhoneNumber}\n" +
+        //    $"Bio - {worker.Bio}\n" +
+        //    $"Age - {worker.Age}\n" +
+        //    $"Region - {worker.Location.Region}\n" +
+        //    $"Destrict - {worker.Location.District}\n" +
+        //    $"Street - {worker.Location.Street}\n" +
+        //    $"Works - {worker.CategoryId[0]},{worker.CategoryId[1]}");
 
     }
         
