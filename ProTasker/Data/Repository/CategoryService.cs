@@ -34,10 +34,13 @@ public class CategoryService : ICategoryService
         var categories = text.ToCategory();
 
         var existCategory = categories.Find(x => x.Id == id)
-            ?? throw new Exception("that kind of category does not exist");
+            ?? throw new Exception("That kind of category does not exist");
 
-        if (existCategory.Name == name)
-            throw new Exception("this is already exists");
+        foreach (var category in categories)
+        {
+            if (category.Name == name)
+            throw new Exception("This is already exists");
+        }
 
         existCategory.Name = name;
 

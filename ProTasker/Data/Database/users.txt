@@ -1,1 +1,5 @@
-
+1,Qari,Qariyev,+777777777777,Dilmurod_03,Admin,555,Male
+2,Dilmurod,Jabborov,+444444444444,Dilmurod_03,Admin,22,Male
+3,Qari3,Qariyev,+333333333333,Dilmurod_03,Admin,555,Male
+4,Qari9,Qariyev,+999999999999,Dilmurod/03,Admin,555,Male
+5,Qari8,Qariyev,+888888888888,Dilmurod_03,Admin,555,Male

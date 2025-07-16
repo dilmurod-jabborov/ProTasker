@@ -54,7 +54,7 @@ public class UserService : IUserService
         return userView;
     }
 
-    public void UpdateUser(UserUpdateModel model)
+    public void UpdateUser(int id, UserUpdateModel model)
     {
         Checker.CheckerMethod(model.FirstName); //bu method umuman keremas
         Checker.CheckerMethod(model.LastName); ///////
@@ -63,9 +63,8 @@ public class UserService : IUserService
 
         var users = text.ToUser();
 
-        var existUser = users.Find(u => u.PhoneNumber == model.PhoneNumber);
-        if (existUser == null)
-            throw new Exception("This user is not found!");
+        var existUser = users.Find(u => u.Id == id)
+           ?? throw new Exception("This user is not found!");
 
         var updateLines = model.UpdateByObj<UserUpdateModel, User>(users, PathHolder.UsersFilePath, existUser.PhoneNumber);
 
