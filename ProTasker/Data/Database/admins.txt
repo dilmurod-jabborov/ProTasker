@@ -1,0 +1,4 @@
+1,Salim,Boboyev,+9958248254,Dilmurod_03,Admin,36
+2,Qari,Salomov,+995824*992982,Dilmurod_03,Admin,1
+3,Salim,Boboyev,+9958211192982,Dilmurod_03,Admin,36
+4,Salim,Boboyev,+99582192982,Dilmurod_03,Admin,36

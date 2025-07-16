@@ -39,24 +39,15 @@ public static class TextToListExtension
 
     public static List<Worker> ToWorkers(this string text)
     {
-        List<Worker> workers = new List<Worker>();
+        List<Worker> workers = new();
 
-        string[] lines = text.Split('\n');
+        string[] lines = text.Split('\n', StringSplitOptions.RemoveEmptyEntries);
 
         foreach (string line in lines)
         {
-            if (string.IsNullOrWhiteSpace(line)) continue;
-
-            string[] parts = line.Split(',');
+            string[] parts = line.Trim().Split(',');
 
             var locParts = parts[10].Split('|', StringSplitOptions.RemoveEmptyEntries);
-
-            var location = new Location()
-            {
-                Region = System.Enum.Parse<Region>(locParts[0]),
-                District = locParts[1],
-                Street = locParts[2]
-            };
 
             workers.Add(new Worker
             {
@@ -69,12 +60,18 @@ public static class TextToListExtension
                 Age = int.Parse(parts[6]),
                 Bio = parts[7],
                 CategoryId = parts[8]
-                           .Split(';', StringSplitOptions.RemoveEmptyEntries)
-                           .Select(int.Parse).ToList(),
+                               .Split(';', StringSplitOptions.RemoveEmptyEntries)
+                               .Select(int.Parse).ToList(),
                 Gender = System.Enum.Parse<Gender>(parts[9]),
-                Location = location
+                Location = new Location
+                {
+                    Region = System.Enum.Parse<Region>(locParts[0]),
+                    District = locParts[1],
+                    Street = locParts[2]
+                }
             });
         }
+
         return workers;
     }
 

@@ -64,19 +64,19 @@ public class WorkerService : IWorkerService
 
     }
 
-    public void Update(WorkerUpdateModel model)
+    public void Update(int id, WorkerUpdateModel model)
     {
         var text = FileHelper.ReadFromFile(PathHolder.WorkersFilePath);
 
         var workers = text.ToWorkers();
 
-        var existWorker = workers.Find(u => u.PhoneNumber == model.PhoneNumber);
+        var existWorker = workers.Find(u => u.Id == id);
         if (existWorker == null)
             throw new Exception("This worker is not found!");
 
         var updateLines = model.UpdateByObj<WorkerUpdateModel, Worker>(workers, PathHolder.WorkersFilePath, existWorker.PhoneNumber);
 
-        FileHelper.WriteToFile(PathHolder.UsersFilePath, updateLines.ConvertToString<Worker>());
+        FileHelper.WriteToFile(PathHolder.WorkersFilePath, updateLines.ConvertToString<Worker>());
     }
 
     public void Delete(int id)

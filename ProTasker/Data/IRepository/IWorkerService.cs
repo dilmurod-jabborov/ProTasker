@@ -6,7 +6,7 @@ public interface IWorkerService
 {
     void Register(WorkerRegisterModel model);
     WorkerViewModel Login(string phoneNumber,  string password);
-    void Update(WorkerUpdateModel model);
+    void Update(int id, WorkerUpdateModel model);
     void Delete(int id);
     List<WorkerViewModel> GetAllWorkers();
     WorkerViewModel GetWorker(int id);

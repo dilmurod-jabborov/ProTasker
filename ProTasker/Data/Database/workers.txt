@@ -1,0 +1,5 @@
+1,Sardor,Esirgapov,1,1,Admin,55,Santexnik,1;5,Female,Samarkand|Qumariq|Qumari ulitsa
+2,Sardor,Esirgapov,2,2,Admin,55,Santexnik,1;5,Female,Samarkand|Qumariq|Qumari ulitsa
+3,Sardorchik,Esirgapov,54000,3,Admin,55,Santexnik,1;5,Female,Samarkand|Chag'atoy|Chag'atoy ulitsa
+4,Sardorchik,Esirgapov,555,1,Admin,55,Santexnik,1;5,Female,Samarkand|Chag'atoy|Chag'atoy ulitsa
+6,Sardor,Esirgapov,4555554000,1,Admin,55,Santexnik,1;5,Female,Samarkand|Qumariq|Qumari ulitsa

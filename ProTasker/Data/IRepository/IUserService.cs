@@ -6,7 +6,7 @@ namespace ProTasker.Data.IRepository;
 public interface IUserService
 {
     void DeleteUser(int id);
-    void UpdateUser(UserUpdateModel model);
+    void UpdateUser(int id, UserUpdateModel model);
     void ChangeUserPassword(string phoneNumber, string oldPassword, string newPassword);
     void Register(UserRegisterModel model);
     UserViewModel Login(string phoneNumber, string password);
