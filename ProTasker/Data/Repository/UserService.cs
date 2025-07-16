@@ -56,20 +56,21 @@ public class UserService : IUserService
 
     public void UpdateUser(UserUpdateModel model)
     {
-        Checker.CheckerMethod(model.FirstName); //bu method umuman keremas
-        Checker.CheckerMethod(model.LastName); ///////
-
         var text = FileHelper.ReadFromFile(PathHolder.UsersFilePath);
-
         var users = text.ToUser();
-
         var existUser = users.Find(u => u.PhoneNumber == model.PhoneNumber);
+
         if (existUser == null)
+        {
             throw new Exception("This user is not found!");
+        }
+        existUser.FirstName = model.FirstName;
+        existUser.LastName = model.LastName;
+        existUser.Age = model.Age;
+        existUser.Gender = model.Gender;
+        existUser.PhoneNumber = model.PhoneNumber;
 
-        var updateLines = model.UpdateByObj<UserUpdateModel, User>(users, PathHolder.UsersFilePath, existUser.PhoneNumber);
-
-        FileHelper.WriteToFile(PathHolder.UsersFilePath, updateLines.ConvertToString<User>());
+        FileHelper.WriteToFile(PathHolder.UsersFilePath, users.ConvertToString<User>());
     }
     
     public void DeleteUser(int id)
@@ -132,8 +133,15 @@ public class UserService : IUserService
         return userView;
     }
 
-    public List<User> GetAll()///////////////////////////////////
+    public List<User> GetAll()
     {
-        throw new NotImplementedException();
+        var text = FileHelper.ReadFromFile(PathHolder.UsersFilePath);
+
+        var users = text.ToUser();
+
+        if (users.Count == 0)
+            throw new Exception("There are no users registered yet!");
+
+        return users;
     }
 }
