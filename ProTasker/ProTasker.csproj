@@ -16,4 +16,8 @@
     <None Remove="Domain\PathHolder\**" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Telegram.Bot" Version="22.6.0" />
+  </ItemGroup>
+
 </Project>

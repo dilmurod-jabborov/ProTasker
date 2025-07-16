@@ -1,4 +1,8 @@
-﻿namespace ProTasker.Domain.Extension;
+﻿using Telegram.Bot.Types.ReplyMarkups;
+using Telegram.Bot.Types;
+using Telegram.Bot;
+
+namespace ProTasker.Domain.Extension;
 
 public static class UpdateHelper
 {
@@ -35,7 +39,6 @@ public static class UpdateHelper
         }
 
         list[index] = existingTarget;
-
         return list;
     }
 }

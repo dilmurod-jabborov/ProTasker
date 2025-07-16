@@ -1,24 +1,19 @@
-﻿using ProTasker.Data.Repository;
-using ProTasker.Domain.Enum;
-using ProTasker.Domain.Models;
-using ProTasker.DTOModels.Admin;
-using ProTasker.DTOModels.User;
-using ProTasker.DTOModels.Worker;
+﻿using ProTasker.Domain.Models;
+using ProTasker.Menu;
+using Telegram.Bot;
+using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 
 namespace ProTasker;
 
-internal class Program
+public class Program
 {
-    static void Main(string[] args)
+    public static void Main(string[] args)
     {
-        WorkerService workerService = new WorkerService();
-        UserService userService = new UserService();
-        CategoryService categoryService = new CategoryService();
-        AdminService adminService = new AdminService();
+        AdminUI admin = new AdminUI();
 
-        userService.ChangeUserPassword("+999999999999", "Dilmurod_03", "Dilmurod/03");
+        admin.StartAsync();
 
-        Console.WriteLine("Muvaffaqqiyatli yangilandi");
+        Console.ReadKey();
     }
-        
 }
