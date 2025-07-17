@@ -1,5 +1,20 @@
-1,Sardor,Esirgapov,1,1,Admin,55,Santexnik,1;5,Female,Samarkand|Qumariq|Qumari ulitsa
-2,Sardor,Esirgapov,2,2,Admin,55,Santexnik,1;5,Female,Samarkand|Qumariq|Qumari ulitsa
-3,Sardorchik,Esirgapov,54000,3,Admin,55,Santexnik,1;5,Female,Samarkand|Chag'atoy|Chag'atoy ulitsa
-4,Sardorchik,Esirgapov,555,1,Admin,55,Santexnik,1;5,Female,Samarkand|Chag'atoy|Chag'atoy ulitsa
-6,Sardor,Esirgapov,4555554000,1,Admin,55,Santexnik,1;5,Female,Samarkand|Qumariq|Qumari ulitsa
+1,Ulug'bek,Toshpo'latov,Worker,24,Ehtiyotkor usta,3;7;12,Male,Toshkent|Yunusobod|Temiryo‘l ko‘chasi  
+2,Shahzoda,Norqobilova,Worker,27,Chiroyli tikuvchi,1;4;9,Female,Farg‘ona|Marg‘ilon|Navbahor ko‘chasi  
+3,Davron,Ismoilov,Worker,31,Tajribali santexnik,5;8;13,Male,Andijon|Shahrixon|Bog‘ishamol mahallasi  
+4,Maftuna,Eshqobilova,Worker,22,G‘ayratli parrandachi,6;11;14,Female,Buxoro|Vobkent|Tinchlik ko‘chasi  
+5,Javohir,Rahimov,Worker,29,Zamonaviy elektrik,2;4;10,Male,Namangan|Chust|Do‘stlik ko‘chasi  
+6,Nilufar,Karimova,Worker,25,Mehribon tarbiyachi,1;3;7,Female,Qashqadaryo|Qarshi|Obod ko‘chasi  
+7,Shuhrat,Sobirov,Worker,34,Qattiqqo‘l duradgor,3;9;15,Male,Samarqand|Urgut|Shodlik ko‘chasi  
+8,Malika,Toirova,Worker,28,Go‘zal florist,2;6;12,Female,Sirdaryo|Guliston|Sarbon ko‘chasi  
+9,Farruh,Olimov,Worker,30,Ilg‘or mexanik,1;7;11,Male,Navoiy|Karmana|Istiqlol ko‘chasi  
+10,Sevara,Yo‘ldosheva,Worker,26,Yaxshi oshpaz,4;8;13,Female,Xorazm|Xiva|Qatag‘on ko‘chasi  
+11,Shoxrux,Abrorov,Worker,32,Tezkor montajchi,3;6;9,Male,Toshkent|Chilonzor|Muqumiy ko‘chasi  
+12,Nargiza,Toshmatova,Worker,23,Chiroyli rasmchi,2;5;14,Female,Buxoro|G‘ijduvon|Farovon ko‘chasi  
+13,Azamat,Yuldashev,Worker,35,Sabrli ustoz,1;3;10,Male,Namangan|Pop|Yangi hayot ko‘chasi  
+14,Mohira,Shukurova,Worker,27,Mehnatkash bog‘bon,4;7;13,Female,Qoraqalpog‘iston|Nukus|Jiydeli ko‘chasi  
+15,Islom,Rustamov,Worker,33,Ma’suliyatli quruvchi,5;8;15,Male,Toshkent|Yakkasaroy|Muxtor ko‘chasi  
+16,Mehriniso,Yoqubova,Worker,24,Fayzli tikuvchi,1;6;12,Female,Andijon|Xo‘jaobod|Uchqun ko‘chasi  
+17,Tohir,Qayumov,Worker,29,Yaxshi sartarosh,2;5;11,Male,Samarqand|Pastdarg‘om|Ko‘hna mahalla  
+18,Sabriniso,Allamurotova,Worker,25,Mehnatkash oshpaz,3;9;14,Female,Farg‘ona|Qo‘qon|Baxmal ko‘chasi  
+19,Kamoliddin,Berdiyev,Worker,31,Ma’suliyati baland elektrchi,4;7;13,Male,Sirdaryo|Boyovut|Navro‘z ko‘chasi  
+20,Muslima,Tillaeva,Worker,26,Yaxshi xamirturushchi,1;4;10,Female,Xorazm|Urganch|Nuroniy ko‘chasi  
