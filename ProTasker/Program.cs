@@ -16,6 +16,5 @@ public class Program
         admin.StartAsync();
 
         Console.ReadKey();
-
     }
 }

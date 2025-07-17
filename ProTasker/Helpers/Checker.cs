@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using ProTasker.Menu;
 
 namespace ProTasker.Helpers;
 
@@ -53,10 +54,6 @@ public static class Checker
         if (string.IsNullOrEmpty(PhoneNumber))
         {
             throw new ArgumentException("Phone number cannot be null or empty.", nameof(PhoneNumber));
-        }
-        if (PhoneNumber.Length < 13)
-        {
-            throw new ArgumentException("Phone number must be 13 characters long.", nameof(PhoneNumber));
         }
     }
 
