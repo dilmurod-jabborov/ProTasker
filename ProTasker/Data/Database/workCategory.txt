@@ -15,4 +15,4 @@
 16,Tarjimonlik / Hujjat ishlari
 17,Sotuv / Do�kon yordamchisi
 18,Dekor / Dizayn xizmatlari
-19,Boshqa
+19,Boshqa

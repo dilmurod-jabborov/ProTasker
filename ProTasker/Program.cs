@@ -9,12 +9,14 @@ namespace ProTasker;
 
 public class Program
 {
-    public static void Main(string[] args)
-    {
+    public static async Task Main(string[] args)
+    { 
         AdminUI admin = new AdminUI();
 
-        admin.StartAsync();
+        await admin.StartAsync();
 
-        Console.ReadKey();
+        UserUI user = new UserUI();
+
+        await user.StartAsync();
     }
 }

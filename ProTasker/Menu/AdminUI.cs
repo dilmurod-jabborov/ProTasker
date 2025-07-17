@@ -546,8 +546,7 @@ public class AdminUI
                     {
                        new[] { new KeyboardButton("📱 My account"),
                                new KeyboardButton("📂 Work Categories") },
-                       new[] { new KeyboardButton("➕ Add work category"),
-                               new KeyboardButton("❌ Delete category") },
+                       new[] { new KeyboardButton("➕ Add work category")},
                        new[] { new KeyboardButton("🔒 Logout") }
                     })
                     { ResizeKeyboard = true };
@@ -596,8 +595,7 @@ public class AdminUI
                     {
                        new[] { new KeyboardButton("📱 My account"),
                                new KeyboardButton("📂 Work Categories") },
-                       new[] { new KeyboardButton("➕ Add work category"),
-                               new KeyboardButton("❌ Delete category") },
+                       new[] { new KeyboardButton("➕ Add work category")},
                        new[] { new KeyboardButton("🔒 Logout") }
                     })
                     { ResizeKeyboard = true };
