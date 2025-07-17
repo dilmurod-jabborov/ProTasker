@@ -58,7 +58,7 @@ public class AdminUI
 
         if (update.Message is { Text: var userInput } message)
         {
-            if(userInput == "0")
+            if (userInput == "0")
             {
                 await MainMenuButton(update.Message.Chat.Id, ct);
                 return;

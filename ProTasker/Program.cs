@@ -15,5 +15,8 @@ public class Program
         admin.StartAsync();
 
         Console.ReadKey();
+
+        //UserUI user = new UserUI();
+        //user.StartAsync().GetAwaiter().GetResult();
     }
 }
