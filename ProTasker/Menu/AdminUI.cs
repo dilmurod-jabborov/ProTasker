@@ -24,18 +24,21 @@ namespace ProTasker.Menu;
 
 public class AdminUI
 {
-    private Dictionary<long, AdminSession> sessions = new();
+    private IDictionary<long, AdminSession> sessions;
     private readonly ITelegramBotClient botClient;
-    private readonly Dictionary<long, AdminUpdateModel> updatingAdmins = new();
+    private readonly IDictionary<long, AdminUpdateModel> updatingAdmins;
     private readonly IAdminService adminService;
     private readonly ICategoryService categoryService;
     private AdminViewModel adminViewModel;
+
     public AdminUI()
     {
         botClient = new TelegramBotClient("7806562984:AAH1bYTCWl3a3WMj9Wbru71CkevZJ8KyVuk");
         adminService = new AdminService();
         categoryService = new CategoryService();
         adminViewModel = new AdminViewModel();
+        updatingAdmins = new Dictionary<long, AdminUpdateModel>();
+        sessions = new Dictionary<long, AdminSession>();
     }
 
     public async Task StartAsync()
