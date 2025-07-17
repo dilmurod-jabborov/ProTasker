@@ -1,1 +1,2 @@
-1,Dilmurod,Jabborov,+998947157279,Dilmurod_03,Admin,22
+1,DILMUROD,JABBOROV,998947157279,Salim-09,Admin,22
+2,Mukha,T,998951209232,Mukha0930$,Admin,16

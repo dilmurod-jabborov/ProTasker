@@ -1,4 +1,5 @@
-﻿using ProTasker.Domain.Models;
+﻿using ProTasker.Data.Repository;
+using ProTasker.Domain.Models;
 using ProTasker.Menu;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -15,5 +16,6 @@ public class Program
         admin.StartAsync();
 
         Console.ReadKey();
+
     }
 }

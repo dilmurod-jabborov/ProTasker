@@ -47,7 +47,7 @@ public class CategoryService : ICategoryService
         FileHelper.WriteToFile(PathHolder.CategoryFilePath, categories.ConvertToString<Category>());
     }
 
-    public string Get(int id)
+    public Category Get(int id)
     {
         var text = FileHelper.ReadFromFile(PathHolder.CategoryFilePath);
 
@@ -56,7 +56,7 @@ public class CategoryService : ICategoryService
         var existCategory = categories.Find(x => x.Id == id)
              ?? throw new Exception($"that kind of category does not exist");
 
-        return existCategory.Name;
+        return existCategory;
     }
 
     public void Delete(int id)

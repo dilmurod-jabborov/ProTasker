@@ -7,6 +7,6 @@ public interface ICategoryService
     void Create(string name);
     void Update(int id, string name);
     void Delete(int id);
-    string Get(int id);
+    Category Get(int id);
     List<Category> GetAll();
 }

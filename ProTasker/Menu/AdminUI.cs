@@ -15,6 +15,10 @@ using System.Reflection;
 using static System.Net.Mime.MediaTypeNames;
 using System.Net;
 using System.Collections.ObjectModel;
+using static System.Collections.Specialized.BitVector32;
+using System.Globalization;
+using System.Threading.Tasks.Dataflow;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ProTasker.Menu;
 
@@ -55,70 +59,150 @@ public class AdminUI
 
     private async Task MainMenu(ITelegramBotClient botClient, Update update, CancellationToken ct)
     {
-        try
+        var chatId = update.Message?.Chat.Id
+                     ?? update.CallbackQuery?.Message.Chat.Id
+                     ?? 0;
+
+        await CalbackQuerryHelper(chatId, update, ct);
+
+        await MessageHelper(chatId, update, ct);
+    }
+
+    private async Task CalbackQuerryHelper(long chatId, Update update, CancellationToken ct)
+    {
+        if (update.CallbackQuery?.Data is string data)
         {
-            var chatId = update.Message?.Chat.Id
-                         ?? update.CallbackQuery?.Message.Chat.Id
-                         ?? 0;
+            await CallbackQuerryCategoryHelper(chatId, data, ct);
 
-            if (update.CallbackQuery?.Data is string data)
+            switch (data)
             {
-                switch (data)
-                {
-                    case "register":
-                        sessions[chatId] = new AdminSession
-                        {
-                            Mode = "register",
-                            CurrentStep = "firstname"
-                        };
+                case "register":
+                    sessions[chatId] = new AdminSession
+                    {
+                        Mode = "register",
+                        CurrentStep = "firstname"
+                    };
 
-                        await botClient.SendMessage(chatId, "👤 Enter First name...", cancellationToken: ct);
-                        return;
+                    await botClient.SendMessage(chatId, "👤 Enter First name...", cancellationToken: ct);
+                    return;
 
-                    case "login":
-                        sessions[chatId] = new AdminSession
-                        {
-                            Mode = "login",
-                            CurrentStep = "phone"
-                        };
+                case "login":
+                    sessions[chatId] = new AdminSession
+                    {
+                        Mode = "login",
+                        CurrentStep = "phone"
+                    };
 
-                        var contactKeyboard = new ReplyKeyboardMarkup(new[]
-                        {
+                    var contactKeyboard = new ReplyKeyboardMarkup(new[]
+                    {
                     KeyboardButton.WithRequestContact("📱 Send your phone number")
                 })
-                        {
-                            ResizeKeyboard = true,
-                            OneTimeKeyboard = true
-                        };
+                    {
+                        ResizeKeyboard = true,
+                        OneTimeKeyboard = true
+                    };
 
-                        await botClient.SendMessage(chatId, "📞 Click button to send phone number:", replyMarkup: contactKeyboard, cancellationToken: ct);
-                        return;
+                    await botClient.SendMessage(chatId, "📞 Click button to send phone number:",
+                        replyMarkup: contactKeyboard, cancellationToken: ct);
+                    return;
 
-                    case "update_account":
-                        sessions[chatId] = new AdminSession
-                        {
-                            Mode = "update_account",
-                            CurrentStep = "new_firstname",
-                            Data = new Dictionary<string, string>()
-                        };
+                case "update_account":
+                    sessions[chatId] = new AdminSession
+                    {
+                        Mode = "update_account",
+                        CurrentStep = "new_firstname",
+                        Data = new Dictionary<string, string>()
+                    };
 
-                        await botClient.SendMessage(chatId, "📝 Enter new first name...", cancellationToken: ct);
-                        return;
+                    await botClient.SendMessage(chatId, "📝 Enter new first name...",
+                        cancellationToken: ct);
+                    return;
 
-                    case "change_password":
-                        sessions[chatId] = new AdminSession
-                        {
-                            Mode = "change_password",
-                            CurrentStep = "old_password",
-                            Data = new Dictionary<string, string>()
-                        };
+                case "change_password":
+                    sessions[chatId] = new AdminSession
+                    {
+                        Mode = "change_password",
+                        CurrentStep = "old_password",
+                        Data = new Dictionary<string, string>()
+                    };
 
-                        await botClient.SendMessage(chatId, "📝 Enter old password...", cancellationToken: ct);
-                        await botClient.AnswerCallbackQuery(update.CallbackQuery.Id, cancellationToken: ct);
-                        return;
-                }
+                    await botClient.SendMessage(chatId, "📝 Enter old password...", cancellationToken: ct);
+
+                    await botClient.AnswerCallbackQuery(update.CallbackQuery.Id, cancellationToken: ct);
+                    return;
+            }
+        }
+    }
+
+    private async Task CallbackQuerryCategoryHelper(long chatId, string data, CancellationToken ct)
+    {
+        if (data.StartsWith("cat_"))
+        {
+            var categoryId = Convert.ToInt32(data.Split('_')[1]);
+            var category = categoryService.Get(categoryId);
+
+            if (category != null)
+            {
+                var actionButtons = new InlineKeyboardMarkup(new[]
+                {
+                    new[]
+                    {
+                      InlineKeyboardButton.WithCallbackData("✏️ Update", $"update_cat_{category.Id}"),
+                      InlineKeyboardButton.WithCallbackData("❌ Delete", $"delete_cat_{category.Id}")
+                    }
+                    });
+
+                await botClient.SendMessage(
+                    chatId,
+                    $"📁 Category: {category.Name}",
+                    replyMarkup: actionButtons,
+                    cancellationToken: ct
+                );
+            }
+            else
+            {
+                await botClient.SendMessage(chatId, "⚠️ No such category was found.", cancellationToken: ct);
             }
 
+            return;
+        }
+        else if (data.StartsWith("update_cat_"))
+        {
+            var catId = Convert.ToInt32(data.Split('_')[2]);
+            sessions[chatId] = new AdminSession
+            {
+                Mode = "update_category_",
+                CurrentStep = "new_category_name",
+                Data = new Dictionary<string, string> { { "categoryId", catId.ToString() } }
+            };
+
+            await botClient.SendMessage(chatId, "✏️ Enter new category name...", cancellationToken: ct);
+            return;
+        }
+        else if (data.StartsWith("delete_cat_"))
+        {
+            try
+            {
+                var catId = Convert.ToInt32(data.Split('_')[2]);
+                categoryService.Delete(catId);
+
+                await botClient.SendMessage(chatId, "✅ Deleted Category!", cancellationToken: ct);
+                sessions[chatId].CurrentStep = "menu";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                await botClient.SendMessage(chatId, $"Error: {ex.Message}");
+            }
+
+            return;
+        }
+    }
+
+    private async Task MessageHelper(long chatId, Update update, CancellationToken ct)
+    {
+        try
+        {
             if (update.Message?.Text is string userInput)
             {
                 if (userInput == "/start")
@@ -133,7 +217,7 @@ public class AdminUI
                     if (session.Mode == "register")
                         await Register(chatId, userInput, update, session, ct);
 
-                    else if (session.Mode == "login")
+                    else if (session.Mode == "login" || session.CurrentStep == "menu")
                         await Login(chatId, userInput, update, session, ct);
 
                     else if (session.Mode == "update_account")
@@ -141,35 +225,25 @@ public class AdminUI
 
                     else if (session.Mode == "change_password")
                         await ChangePassword(chatId, userInput, update, session, ct);
+
+                    else if (session.Mode == "add_category")
+                    {
+                        categoryService.Create(userInput);
+                        await botClient.SendMessage(chatId, "✅ Added new category!", cancellationToken: ct);
+                        session.CurrentStep = "menu";
+                    }
+                    else if (session.Mode == "update_cat_")
+                        await UpdateCategory(chatId, userInput, update, ct);
+
                 }
             }
 
-            if (update.Message?.Contact is { } contact)
-            {
-                if (sessions.TryGetValue(chatId, out var session) &&
-                    session.Mode == "register" &&
-                    session.CurrentStep == "phone")
-                {
-                    session.Data["phone"] = contact.PhoneNumber;
-                    session.CurrentStep = "password";
-
-                    await botClient.SendMessage(chatId, "🔐 Enter password...", cancellationToken: ct);
-                }
-
-                if (sessions.TryGetValue(chatId, out var session1) &&
-                    session.Mode == "login" &&
-                    session.CurrentStep == "phone")
-                {
-                    session.Data["phone"] = contact.PhoneNumber;
-                    session.CurrentStep = "password";
-
-                    await botClient.SendMessage(chatId, "🔐 Enter password...", cancellationToken: ct);
-                }
-            }
+            await ContactHelper(chatId, update, ct);
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
+            await botClient.SendMessage(chatId, $"Error: {ex.Message}", cancellationToken: ct);
         }
     }
 
@@ -273,14 +347,42 @@ public class AdminUI
         }
 
         if (update.Message?.Contact is { } contact)
-        {
-            if (session.Mode == "register" && session.CurrentStep == "phone")
-            {
-                session.Data["phone"] = contact.PhoneNumber;
-                session.CurrentStep = "password";
+            RegisterPhoneHelper(chatId, contact, ct);
+    }
 
-                await botClient.SendMessage(chatId, "🔐 Enter password...", cancellationToken: ct);
-            }
+    private async Task ContactHelper(long chatId, Update update, CancellationToken ct)
+    {
+        if (update.Message?.Contact is { } contact)
+        {
+            await RegisterPhoneHelper(chatId, contact, ct);
+
+            await LoginPhoneHelper(chatId, contact, ct);
+        }
+    }
+
+    private async Task RegisterPhoneHelper(long chatId, Contact contact, CancellationToken ct)
+    {
+        if (sessions.TryGetValue(chatId, out var session) &&
+                session.Mode == "register" &&
+                session.CurrentStep == "phone")
+        {
+            session.Data["phone"] = contact.PhoneNumber;
+            session.CurrentStep = "password";
+
+            await botClient.SendMessage(chatId, "🔐 Enter password...", cancellationToken: ct);
+        }
+    }
+
+    private async Task LoginPhoneHelper(long chatId, Contact contact, CancellationToken ct)
+    {
+        if (sessions.TryGetValue(chatId, out var session) &&
+                session.Mode == "login" &&
+                session.CurrentStep == "phone")
+        {
+            session.Data["phone"] = contact.PhoneNumber;
+            session.CurrentStep = "password";
+
+            await botClient.SendMessage(chatId, "🔐 Enter password...", cancellationToken: ct);
         }
     }
 
@@ -307,6 +409,7 @@ public class AdminUI
                 try
                 {
                     adminViewModel = adminService.Login(session.Data["phone"], session.Data["password"]);
+
                     session.CurrentStep = "menu";
 
                     Console.WriteLine($"{adminViewModel.FirstName} akkauntiga kirdi");
@@ -315,8 +418,7 @@ public class AdminUI
                                {
                                   new[] { new KeyboardButton("📱 My account"),
                                             new KeyboardButton("📂 Work Categories") },
-                                  new[] { new KeyboardButton("➕ Add work category"),
-                                            new KeyboardButton("❌ Delete category") },
+                                  new[] { new KeyboardButton("➕ Add work category")},
                                   new[] { new KeyboardButton("🔒 Logout") }
                                })
                     { ResizeKeyboard = true };
@@ -330,7 +432,7 @@ public class AdminUI
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("❌ Exception: " + ex.ToString()); // To‘liq exception chiqadi
+                    Console.WriteLine("❌ Exception: " + ex.ToString());
                     await botClient.SendMessage(chatId, $"❌ Error: {ex.Message}", cancellationToken: ct);
                 }
                 break;
@@ -354,10 +456,6 @@ public class AdminUI
                         await AddCategory(chatId, ct);
                         break;
 
-                    case "❌ Delete category":
-                        await DeleteCategory(chatId, ct);
-                        break;
-
                     case "🔒 Logout":
                         await Logout(chatId, ct, adminViewModel);
                         break;
@@ -367,7 +465,7 @@ public class AdminUI
             {
                 Console.WriteLine("❌ Exception: " + ex.ToString()); // To‘liq exception chiqadi
                 await botClient.SendMessage(chatId, $"❌ Error: {ex.Message}", cancellationToken: ct);
-            }     
+            }
         }
     }
 
@@ -393,7 +491,7 @@ public class AdminUI
             cancellationToken: ct
         );
     }
-    
+
     private async Task UpdateAccount(long chatId, string userInput, Update update, AdminSession session, CancellationToken ct)
     {
         if (userInput == "/start")
@@ -445,7 +543,7 @@ public class AdminUI
                     {
                        new[] { new KeyboardButton("📱 My account"),
                                new KeyboardButton("📂 Work Categories") },
-                       new[] { new KeyboardButton("➕ Add work category"), 
+                       new[] { new KeyboardButton("➕ Add work category"),
                                new KeyboardButton("❌ Delete category") },
                        new[] { new KeyboardButton("🔒 Logout") }
                     })
@@ -457,7 +555,7 @@ public class AdminUI
                 {
                     await botClient.SendMessage(chatId, $"❌ Error: {ex.Message}", cancellationToken: ct);
                 }
-                sessions.Remove(chatId);
+                session.CurrentStep = "menu";
                 break;
         }
     }
@@ -507,38 +605,71 @@ public class AdminUI
                 {
                     await botClient.SendMessage(chatId, $"❌ Error: {ex.Message}", cancellationToken: ct);
                 }
-                sessions.Remove(chatId);
+                session.CurrentStep = "menu";
                 break;
         }
     }
+
     private async Task WorkCategories(long chatId, CancellationToken ct)
     {
-        List<Domain.Models.Category> categories = categoryService.GetAll();
-        
-        foreach(var category in categories)
+        var categories = categoryService.GetAll();
+
+        if (categories == null || categories.Count == 0)
         {
-            await botClient.SendMessage(
+            await botClient.SendMessage(chatId, "⚠️ No category was found!", cancellationToken: ct);
+            return;
+        }
+
+        var buttons = categories
+            .Select(c => new[]
+            {
+            InlineKeyboardButton.WithCallbackData($"📁 {c.Name}", $"cat_{c.Id}")
+            })
+            .ToList();
+
+        var keyboard = new InlineKeyboardMarkup(buttons);
+
+        await botClient.SendMessage(
             chatId: chatId,
-            text: $" Category lists :\n\n" +
-                  $"👥 {category.Id}: {category.Name}\n",
+            text: "📂 Please select a Category:",
+            replyMarkup: keyboard,
             cancellationToken: ct
         );
-        }
     }
-    
+
     private async Task AddCategory(long chatId, CancellationToken ct)
     {
+        sessions[chatId] = new AdminSession
+        {
+            Mode = "add_category",
+            CurrentStep = "category_name"
+        };
 
+        await botClient.SendMessage(chatId, "✍️ Enter new category name...", cancellationToken: ct);
     }
-    
-    private async Task DeleteCategory(long chatId, CancellationToken ct)
+
+    private async Task UpdateCategory(long chatId, string userInput, Update update, CancellationToken ct)
     {
+        try
+        {
+            if (userInput is not null)
+                categoryService.Update(Convert.ToInt32(sessions[chatId].Data["categoryId"]), userInput);
 
+            await botClient.SendMessage(chatId, $"Updated categor - {userInput}", cancellationToken: ct);
+
+            sessions[chatId].CurrentStep = "menu";
+
+        } catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+
+            await botClient.SendMessage(chatId, $"Error: {ex.Message}", cancellationToken: ct); 
+        }
     }
-    
+
     private async Task Logout(long chatId, CancellationToken ct, AdminViewModel adminViewModel)
     {
-        sessions.Remove(chatId); 
+        sessions.Remove(chatId);
         await botClient.SendMessage(chatId, "🔒 Siz tizimdan chiqdingiz.", cancellationToken: ct);
         await MainMenuButton(chatId, ct);
     }
