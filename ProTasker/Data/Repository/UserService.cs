@@ -56,9 +56,6 @@ public class UserService : IUserService
 
     public void UpdateUser(int id, UserUpdateModel model)
     {
-        Checker.CheckerMethod(model.FirstName); //bu method umuman keremas
-        Checker.CheckerMethod(model.LastName); ///////
-
         var text = FileHelper.ReadFromFile(PathHolder.UsersFilePath);
 
         var users = text.ToUser();
@@ -131,8 +128,17 @@ public class UserService : IUserService
         return userView;
     }
 
-    public List<User> GetAll()///////////////////////////////////
+    public List<User> GetAll()
     {
-        throw new NotImplementedException();
+        var list = File.ReadAllText(PathHolder.UsersFilePath);
+
+        if (string.IsNullOrEmpty(list))
+        {
+            return new List<User>();
+        }
+
+        var users = list.ToUser();
+
+        return users;
     }
 }
