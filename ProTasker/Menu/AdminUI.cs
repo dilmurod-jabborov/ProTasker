@@ -329,7 +329,7 @@ public class AdminUI
                     FirstName = session.Data["firstname"],
                     LastName = session.Data["lastname"],
                     Age = int.Parse(session.Data["age"]),
-                    PhoneNumber = session.Data["phone"],
+                    PhoneNumber = NormalizerPhone(session.Data["phone"]),
                     Password = session.Data["password"],
                     Role = Domain.Enum.Role.Admin
                 };
@@ -369,7 +369,7 @@ public class AdminUI
                 session.Mode == "register" &&
                 session.CurrentStep == "phone")
         {
-            session.Data["phone"] = contact.PhoneNumber;
+            session.Data["phone"] = NormalizerPhone(contact.PhoneNumber);
             session.CurrentStep = "password";
 
             await botClient.SendMessage(chatId, "🔐 Enter password...", cancellationToken: ct);
@@ -382,7 +382,7 @@ public class AdminUI
                 session.Mode == "login" &&
                 session.CurrentStep == "phone")
         {
-            session.Data["phone"] = contact.PhoneNumber;
+            session.Data["phone"] = NormalizerPhone(contact.PhoneNumber);
             session.CurrentStep = "password";
 
             await botClient.SendMessage(chatId, "🔐 Enter password...", cancellationToken: ct);
@@ -401,7 +401,7 @@ public class AdminUI
         switch (session.CurrentStep)
         {
             case "phone":
-                session.Data["phone"] = userInput;
+                session.Data["phone"] = NormalizerPhone(userInput);
                 session.CurrentStep = "password";
                 await botClient.SendMessage(chatId, "👤 Enter your password...", cancellationToken: ct);
                 break;
@@ -411,7 +411,7 @@ public class AdminUI
 
                 try
                 {
-                    adminViewModel = adminService.Login(session.Data["phone"], session.Data["password"]);
+                    adminViewModel = adminService.Login(NormalizerPhone(session.Data["phone"]), session.Data["password"]);
 
                     session.CurrentStep = "menu";
 
@@ -673,5 +673,10 @@ public class AdminUI
         sessions.Remove(chatId);
         await botClient.SendMessage(chatId, "🔒 Siz tizimdan chiqdingiz.", cancellationToken: ct);
         await MainMenuButton(chatId, ct);
+    }
+
+    private string NormalizerPhone(string phone)
+    {
+        return phone.Replace("+", "").Trim();
     }
 }

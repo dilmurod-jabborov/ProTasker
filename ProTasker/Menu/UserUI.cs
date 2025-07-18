@@ -30,7 +30,6 @@ namespace ProTasker.Menu
         private readonly Dictionary<long, UserUpdateModel> updatingUsers = new();
         private readonly Dictionary<long, UserLoginModel> loginUsers = new();
         private readonly Dictionary<long, string> userSessions = new();
-        //private readonly Dictionary<long, UserFunctionsModel> userFunctions = new();
         private readonly IUserService userService;
         public bool IsLoggedIn(long chatId) => userSessions.ContainsKey(chatId);
 
