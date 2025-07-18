@@ -1,6 +1,6 @@
 ﻿using ProTasker.Data.Repository;
 using ProTasker.Domain.Models;
-using ProTasker.Menu;
+using ProTasker.Menu.AdminUIFolder;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
