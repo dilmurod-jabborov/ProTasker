@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using ProTasker.Data.IRepository;
@@ -218,11 +220,11 @@ namespace ProTasker.Menu.UserUIFolder
                             break;
 
                         case "📂 Search Worker By Categories":
-                            await ShowCategoryPageAsync(botClient, chatId, 0, session);
+                            await ShowSearchByCategoryPageAsync(botClient, chatId, 0, session);
                             break;
 
                         case "📂 Search Worker By Region":
-                            
+                            await ShowSearchByRegionPageAsync(botClient, chatId, session);
                             break;
 
                         case "🔒 Logout":
@@ -236,6 +238,41 @@ namespace ProTasker.Menu.UserUIFolder
                     await botClient.SendMessage(chatId, $"❌ Error: {ex.Message}", cancellationToken: ct);
                 }
             }
+        }
+
+        private async Task ShowSearchByRegionPageAsync(ITelegramBotClient botClient, long chatId, UserSession session)
+        {
+            var buttons = new List<List<InlineKeyboardButton>>();
+
+            foreach (Region region in Enum.GetValues(typeof(Region)))
+            {
+                string name = GetEnumDescription(region);
+  
+                buttons.Add(new List<InlineKeyboardButton>
+                {
+                 InlineKeyboardButton.WithCallbackData(name, $"select_region:{(int)region}")
+                });
+            }
+
+            buttons.Add(new List<InlineKeyboardButton>
+            {
+            InlineKeyboardButton.WithCallbackData("❌ Delete", "delete_msg")
+            });
+
+            var keyboard = new InlineKeyboardMarkup(buttons);
+
+            await botClient.SendMessage(
+                chatId: chatId,
+                text: "📍 From which region are you looking for a worker?",
+                replyMarkup: keyboard
+            );
+        }
+
+        public string GetEnumDescription(Enum value)
+        {
+            var field = value.GetType().GetField(value.ToString());
+            var attribute = field?.GetCustomAttribute<DescriptionAttribute>();
+            return attribute?.Description ?? value.ToString();
         }
 
         private async Task ContactHelper(long chatId, Update update, CancellationToken ct)
@@ -360,7 +397,7 @@ namespace ProTasker.Menu.UserUIFolder
                         await botClient.DeleteMessage(chatId, msgId);
                     }
 
-                    await ShowCategoryPageAsync(botClient, chatId, page, session);
+                    await ShowSearchByCategoryPageAsync(botClient, chatId, page, session);
                     return;
                 }
 
@@ -420,7 +457,40 @@ namespace ProTasker.Menu.UserUIFolder
                     }
                     return;
                 }
+
+                if (data.StartsWith("select_region:"))
+                {
+                    var regionId = int.Parse(data.Split(":")[1]);
+
+                    session.Data["SelectedRegionId"] = regionId.ToString();
+                    session.Data["WorkerPage"] = "0";
+                    
+                    var workers = workerService.SearchByRegion(regionId);
+                    await ShowWorkerPageAsync(botClient, chatId, 0, workers, session);
+                    return;
+                }
+
+                if (data == "delete_msg")
+                {
+                    await botClient.DeleteMessage(chatId, update.CallbackQuery.Message.MessageId);
+                    return;
+                }
             }
+        }
+
+        public TEnum? GetEnumValueFromDescription<TEnum>(string description) where TEnum : struct, Enum
+        {
+            foreach (var field in typeof(TEnum).GetFields())
+            {
+                var attr = field.GetCustomAttribute<DescriptionAttribute>();
+                if (attr?.Description == description)
+                    return (TEnum)field.GetValue(null);
+
+                if (field.Name == description)
+                    return (TEnum)field.GetValue(null);
+            }
+
+            return null;
         }
 
         private async Task MessageHelper(long chatId, Update update, CancellationToken ct)
@@ -600,7 +670,7 @@ namespace ProTasker.Menu.UserUIFolder
             }
         }
 
-        private async Task ShowCategoryPageAsync(ITelegramBotClient botClient, long chatId, int page, UserSession session)
+        private async Task ShowSearchByCategoryPageAsync(ITelegramBotClient botClient, long chatId, int page, UserSession session)
         {
             int pageSize = 5;
             var pagedCategories = categoryService.GetAll().Skip(page * pageSize).Take(pageSize).ToList();
@@ -641,7 +711,6 @@ namespace ProTasker.Menu.UserUIFolder
 
             session.Data["LastCategoryMsgId"] = sentMsg.MessageId.ToString();
         }
-
 
         private async Task ShowWorkerPageAsync(ITelegramBotClient botClient, long chatId, int page, List<WorkerSearchModel> allWorkers, UserSession session)
         {
@@ -689,7 +758,6 @@ namespace ProTasker.Menu.UserUIFolder
 
             session.Data["LastWorkerMsgId"] = sentMsg.MessageId.ToString();
         }
-
 
         private async Task Logout(long chatId, CancellationToken ct, UserViewModel UserViewModel)
         {

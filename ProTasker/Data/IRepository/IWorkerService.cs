@@ -11,5 +11,5 @@ public interface IWorkerService
     WorkerViewModel GetWorker(int id);
     void ChangePassword(int id, string oldPassword, string newPassword);
     List<WorkerSearchModel> SearchByCategory(int id);
-    List<WorkerSearchModel> SearchByRegion(string region);
+    List<WorkerSearchModel> SearchByRegion(int regId);
 }

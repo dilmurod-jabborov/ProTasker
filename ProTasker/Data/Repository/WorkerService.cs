@@ -48,7 +48,7 @@ public class WorkerService : IWorkerService
 
         var worker = workers.Find(w => w.PhoneNumber == phoneNumber && w.Password == password)
             ?? throw new Exception("Invalid phone number or password.");
-       
+
         var categories = categoryService.GetAll();
 
         var catList = new List<string>();
@@ -133,9 +133,9 @@ public class WorkerService : IWorkerService
         {
             var workerCatIds = worker.CategoryId;
 
-            foreach(var categoryId in workerCatIds)
+            foreach (var categoryId in workerCatIds)
             {
-                if(category.Id == categoryId)
+                if (category.Id == categoryId)
                 {
                     catList.Add(category.Name);
                 }
@@ -188,11 +188,11 @@ public class WorkerService : IWorkerService
 
         var workersList = new List<WorkerSearchModel>();
 
-        var catName="";
+        var catName = "";
 
         foreach (var category in categories)
         {
-            if(category.Id == id)
+            if (category.Id == id)
                 catName = category.Name;
         }
 
@@ -222,7 +222,7 @@ public class WorkerService : IWorkerService
         return workersList;
     }
 
-    public List<WorkerSearchModel> SearchByRegion(string region)
+    public List<WorkerSearchModel> SearchByRegion(int regId)
     {
         var text = FileHelper.ReadFromFile(PathHolder.WorkersFilePath);
 
@@ -232,9 +232,9 @@ public class WorkerService : IWorkerService
 
         foreach (var worker in workers)
         {
-            var workerRegion = worker.Location.Region.ToString();
+            int workerRegionId = (int)worker.Location.Region;
 
-            if (workerRegion == region)
+            if (workerRegionId == regId)
             {
                 workerList.Add(new WorkerSearchModel()
                 {

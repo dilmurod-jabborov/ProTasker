@@ -1,18 +1,44 @@
-﻿namespace ProTasker.Domain.Enum;
+﻿using System.ComponentModel;
+
+namespace ProTasker.Domain.Enum;
 public enum Region
 {
-    Tashkent,           
-    TashkentRegion,     
-    Andijan,            
-    Fergana,            
-    Namangan,           
-    Samarkand,          
-    Bukhara,            
-    Khorezm,            
-    Surkhandarya,       
-    Kashkadarya,        
-    Jizzakh,            
-    Sirdarya,           
-    Navoi,              
-    Karakalpakstan      
+    [Description("Toshkent shahri")]
+    Tashkent = 1,
+
+    [Description("Toshkent viloyati")]
+    Tashkentregion,
+
+    [Description("Samarqand")]
+    Samarkand,
+
+    [Description("Buxoro")]
+    Bukhara,
+
+    [Description("Fargʻona")]
+    Fergana,
+
+    [Description("Andijon")]
+    Andijan,
+
+    [Description("Namangan")]
+    Namangan,
+
+    [Description("Xorazm")]
+    Khorezm,
+
+    [Description("Surxondaryo")]
+    Surkhandarya,
+
+    [Description("Qashqadaryo")]
+    Kashkadarya,
+
+    [Description("Navoiy")]
+    Navoi,
+
+    [Description("Jizzax")]
+    Jizzakh,
+
+    [Description("Qoraqalpogʻiston Respublikasi")]
+    Karakalpakstan
 }
