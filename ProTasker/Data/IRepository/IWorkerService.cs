@@ -8,7 +8,8 @@ public interface IWorkerService
     WorkerViewModel Login(string phoneNumber,  string password);
     void Update(int id, WorkerUpdateModel model);
     void Delete(int id);
-    List<WorkerViewModel> GetAllWorkers();
     WorkerViewModel GetWorker(int id);
     void ChangePassword(int id, string oldPassword, string newPassword);
+    List<WorkerSearchModel> SearchByCategory(int id);
+    List<WorkerSearchModel> SearchByRegion(string region);
 }

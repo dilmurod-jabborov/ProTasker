@@ -48,19 +48,18 @@ public class UserService : IUserService
             FirstName = user.FirstName,
             LastName = user.LastName,
             PhoneNumber = user.PhoneNumber,
-            Age = user.Age,
-            Gender = user.Gender,
+            Age = user.Age
         };
         return userView;
     }
 
-    public void UpdateUser(int id, UserUpdateModel model)
+    public void UpdateUser(string phoneNumber, UserUpdateModel model)
     {
         var text = FileHelper.ReadFromFile(PathHolder.UsersFilePath);
 
         var users = text.ToUser();
 
-        var existUser = users.Find(u => u.Id == id)
+        var existUser = users.Find(u => u.PhoneNumber == phoneNumber)
            ?? throw new Exception("This user is not found!");
 
         var updateLines = model.UpdateByObj<UserUpdateModel, User>(users, PathHolder.UsersFilePath, existUser.PhoneNumber);
@@ -122,23 +121,8 @@ public class UserService : IUserService
             FirstName = existsUser.FirstName,
             LastName = existsUser.LastName,
             PhoneNumber = existsUser.PhoneNumber,
-            Age = existsUser.Age,
-            Gender = existsUser.Gender,
+            Age = existsUser.Age
         };
         return userView;
-    }
-
-    public List<User> GetAll()
-    {
-        var list = File.ReadAllText(PathHolder.UsersFilePath);
-
-        if (string.IsNullOrEmpty(list))
-        {
-            return new List<User>();
-        }
-
-        var users = list.ToUser();
-
-        return users;
     }
 }

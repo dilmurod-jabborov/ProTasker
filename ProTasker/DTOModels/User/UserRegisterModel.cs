@@ -11,5 +11,4 @@ public class UserRegisterModel
     public string Password { get; set; }
     public Role Role { get; set; }
     public int Age { get; set; }
-    public Gender Gender { get; set; }
 }

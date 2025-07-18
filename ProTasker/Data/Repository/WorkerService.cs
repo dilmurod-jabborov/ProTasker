@@ -1,4 +1,5 @@
-﻿using ProTasker.Constants;
+﻿using System.Diagnostics;
+using ProTasker.Constants;
 using ProTasker.Data.IRepository;
 using ProTasker.Domain.Enum;
 using ProTasker.Domain.Extension;
@@ -11,6 +12,11 @@ namespace ProTasker.Data.Repository;
 
 public class WorkerService : IWorkerService
 {
+    private ICategoryService categoryService;
+    public WorkerService()
+    {
+        categoryService = new CategoryService();
+    }
     public void Register(WorkerRegisterModel model)
     {
         var text = FileHelper.ReadFromFile(PathHolder.WorkersFilePath);
@@ -41,8 +47,25 @@ public class WorkerService : IWorkerService
         var workers = text.ToWorkers();
 
         var worker = workers.Find(w => w.PhoneNumber == phoneNumber && w.Password == password)
-            ??   throw new Exception("Invalid phone number or password.");
-        
+            ?? throw new Exception("Invalid phone number or password.");
+       
+        var categories = categoryService.GetAll();
+
+        var catList = new List<string>();
+
+        foreach (var category in categories)
+        {
+            var workerCatIds = worker.CategoryId;
+
+            foreach (var categoryId in workerCatIds)
+            {
+                if (category.Id == categoryId)
+                {
+                    catList.Add(category.Name);
+                }
+            }
+        }
+
         var workerView = new WorkerViewModel()
         {
             FirstName = worker.FirstName,
@@ -50,8 +73,7 @@ public class WorkerService : IWorkerService
             PhoneNumber = worker.PhoneNumber,
             Bio = worker.Bio,
             Age = worker.Age,
-            CategoryId = worker.CategoryId,
-            Gender = worker.Gender,
+            Category = catList,
             Location = new Location()
             {
                 Region = worker.Location.Region,
@@ -86,8 +108,8 @@ public class WorkerService : IWorkerService
         var workers = text.ToWorkers();
 
         var existWorker = workers.Find(u => u.Id == id)
-          ??  throw new Exception("This user is not found!");
-        
+          ?? throw new Exception("This user is not found!");
+
 
         workers.Remove(existWorker);
 
@@ -103,6 +125,23 @@ public class WorkerService : IWorkerService
         var worker = workers.Find(w => w.Id == id)
             ?? throw new Exception("This worker is not found!");
 
+        var categories = categoryService.GetAll();
+
+        var catList = new List<string>();
+
+        foreach (var category in categories)
+        {
+            var workerCatIds = worker.CategoryId;
+
+            foreach(var categoryId in workerCatIds)
+            {
+                if(category.Id == categoryId)
+                {
+                    catList.Add(category.Name);
+                }
+            }
+        }
+
         return new WorkerViewModel()
         {
             FirstName = worker.FirstName,
@@ -110,8 +149,7 @@ public class WorkerService : IWorkerService
             PhoneNumber = worker.PhoneNumber,
             Bio = worker.Bio,
             Age = worker.Age,
-            CategoryId = worker.CategoryId,
-            Gender = worker.Gender,
+            Category = catList,
             Location = new Location()
             {
                 Region = worker.Location.Region,
@@ -119,39 +157,6 @@ public class WorkerService : IWorkerService
                 Street = worker.Location.Street,
             }
         };
-    }
-
-    public List<WorkerViewModel> GetAllWorkers()
-    {
-        var text = FileHelper.ReadFromFile(PathHolder.WorkersFilePath);
-
-        var workers = text.ToWorkers();
-
-        var workersList = new List<WorkerViewModel>();
-
-        foreach (var worker in workers)
-        {
-            var workerViewModel = new WorkerViewModel()
-            {
-                FirstName = worker.FirstName,
-                LastName = worker.LastName,
-                PhoneNumber = worker.PhoneNumber,
-                Bio = worker.Bio,
-                Age = worker.Age,
-                CategoryId = worker.CategoryId,
-                Gender = worker.Gender,
-                Location = new Location()
-                {
-                    Region = worker.Location.Region,
-                    District = worker.Location.District,
-                    Street = worker.Location.Street,
-                }
-            };
-
-            workersList.Add(workerViewModel);
-        }
-
-        return workersList;
     }
 
     public void ChangePassword(int id, string oldPassword, string newPassword)
@@ -171,5 +176,77 @@ public class WorkerService : IWorkerService
 
 
         FileHelper.WriteToFile(PathHolder.WorkersFilePath, workers.ConvertToString<Worker>());
+    }
+
+    public List<WorkerSearchModel> SearchByCategory(int id)
+    {
+        var text = FileHelper.ReadFromFile(PathHolder.WorkersFilePath);
+
+        var workers = text.ToWorkers();
+
+        var categories = categoryService.GetAll();
+
+        var workersList = new List<WorkerSearchModel>();
+
+        var catName="";
+
+        foreach (var category in categories)
+        {
+            if(category.Id == id)
+                catName = category.Name;
+        }
+
+        foreach (var worker in workers)
+        {
+            var workerCatIds = worker.CategoryId;
+
+            foreach (var workerCatId in workerCatIds)
+            {
+                if (workerCatId == id)
+                {
+                    var workerView = new WorkerSearchModel()
+                    {
+                        FirstName = worker.FirstName,
+                        LastName = worker.LastName,
+                        PhoneNumber = worker.PhoneNumber,
+                        Bio = worker.Bio,
+                        Age = worker.Age,
+                        Category = catName
+                    };
+
+                    workersList.Add(workerView);
+                }
+            }
+        }
+
+        return workersList;
+    }
+
+    public List<WorkerSearchModel> SearchByRegion(string region)
+    {
+        var text = FileHelper.ReadFromFile(PathHolder.WorkersFilePath);
+
+        var workers = text.ToWorkers();
+
+        var workerList = new List<WorkerSearchModel>();
+
+        foreach (var worker in workers)
+        {
+            var workerRegion = worker.Location.Region.ToString();
+
+            if (workerRegion == region)
+            {
+                workerList.Add(new WorkerSearchModel()
+                {
+                    FirstName = worker.FirstName,
+                    LastName = worker.LastName,
+                    PhoneNumber = worker.PhoneNumber,
+                    Bio = worker.Bio,
+                    Age = worker.Age
+                });
+            }
+        }
+
+        return workerList;
     }
 }
