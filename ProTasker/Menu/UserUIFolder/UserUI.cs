@@ -9,606 +9,698 @@ using ProTasker.Domain.Enum;
 using ProTasker.Domain.Models;
 using ProTasker.DTOModels.Admin;
 using ProTasker.DTOModels.User;
+using ProTasker.DTOModels.Worker;
+using ProTasker.Menu.AdminUIFolder;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
+using static System.Collections.Specialized.BitVector32;
 
-namespace ProTasker.Menu
+namespace ProTasker.Menu.UserUIFolder
 {
-    internal class UserUI
+    public class UserUI
     {
-        WorkerService workerService = new WorkerService();
+        private IDictionary<long, UserSession> sessions;
         private readonly ITelegramBotClient botClient;
-
-        private readonly Dictionary<long, string> registrationSteps = new();
-        private readonly Dictionary<long, string> updatingSteps = new();
-        private readonly Dictionary<long, string> loginSteps = new();
-        private readonly Dictionary<long, UserRegisterModel> registeringUsers = new();
-        private readonly Dictionary<long, UserUpdateModel> updatingUsers = new();
-        private readonly Dictionary<long, UserLoginModel> loginUsers = new();
-        private readonly Dictionary<long, string> userSessions = new();
+        private readonly IDictionary<long, UserUpdateModel> updatingUsers;
         private readonly IUserService userService;
-        public bool IsLoggedIn(long chatId) => userSessions.ContainsKey(chatId);
-
-        public UserUI()
+        private readonly ICategoryService categoryService;
+        private UserViewModel userViewModel;
+        private readonly IWorkerService workerService;
+        public UserUI(string token)
         {
-            botClient = new TelegramBotClient("8078697381:AAH8WOUIML8fd1AeLHOkgZeuy6uX8Qfp8PU");
+            botClient = new TelegramBotClient(token);
             userService = new UserService();
+            categoryService = new CategoryService();
+            userViewModel = new UserViewModel();
+            updatingUsers = new Dictionary<long, UserUpdateModel>();
+            sessions = new Dictionary<long, UserSession>();
+            workerService = new WorkerService();
         }
+
         public async Task StartAsync()
         {
             using var cts = new CancellationTokenSource();
-            var cancellationToken = cts.Token;
 
             botClient.StartReceiving(
-                HandleUpdateAsync,
+                updateHandler: MainMenu,
                 HandleErrorAsync,
-                new ReceiverOptions
+                receiverOptions: new ReceiverOptions
                 {
-                    AllowedUpdates = Array.Empty<UpdateType>() // Receive all update types  
+                    AllowedUpdates = new[] { UpdateType.CallbackQuery, UpdateType.Message }
                 },
-                cancellationToken
-            );
-            var me = await botClient.GetMe();
+                cancellationToken: cts.Token);
 
-            if (me == null || string.IsNullOrEmpty(me.Username))
-            {
-                Console.WriteLine("❌ Bot username is not set. Please check your bot token.");
-                return;
-            }
-            Console.WriteLine($"Bot started: {me.FirstName} (@{me.Username})");
-            Console.WriteLine("Bot is running... Press Ctrl+C to exit.");
+            var me = await botClient.GetMe();
+            Console.WriteLine($"✅ User bot ishga tushdi: @{me.Username}");
 
             await Task.Delay(-1);
         }
-        private async Task HandleErrorAsync(ITelegramBotClient client, Exception exception, CancellationToken token)
+
+        private Task HandleErrorAsync(ITelegramBotClient bot, Exception exception, CancellationToken ct)
         {
-            if (exception is ApiRequestException apiRequestException)
-            {
-                Console.WriteLine($"Telegram API Error: {apiRequestException.ErrorCode} - {apiRequestException.Message}");
-            }
-            else
-            {
-                Console.WriteLine($"General Error: {exception.Message}");
-            }
-            await Task.CompletedTask;
+            Console.WriteLine($"❌ Xatolik: {exception.Message}");
+            return Task.CompletedTask;
         }
-        private async Task HandleUpdateAsync(ITelegramBotClient client, Update update, CancellationToken token)
+
+        private async Task MainMenu(ITelegramBotClient botClient, Update update, CancellationToken ct)
         {
-            Console.WriteLine("Received update: " + update.Type);
-            try
-            {
-                if (update.Type == UpdateType.Message && update.Message?.Text == "/start")
-                {
-                    await MainMenuButton(update.Message.Chat.Id, token);
-                    return;
-                }
+            var chatId = update.Message?.Chat.Id
+                         ?? update.CallbackQuery?.Message.Chat.Id
+                         ?? 0;
 
-                if (update.Type == UpdateType.Message)
-                {
-                    await MainMenu(client, update, token);
-                }
-                else if (update.Type == UpdateType.CallbackQuery)
-                {
-                    await MainMenu(client, update, token);
-                }
-                if(IsLoggedIn(update.Message.Chat.Id))
-                {
-                    if (update.CallbackQuery is not null)
-                    {
-                        switch (update.Message.Text)
-                        {
-                            case "🔍 Find Worker":
-                                var findWorkersMenu = new InlineKeyboardMarkup(new[]
-                                {
-                                    new[] { InlineKeyboardButton.WithCallbackData("By Location", "ByLocation") },
-                                    new[] { InlineKeyboardButton.WithCallbackData("By Category", "ByCategory") },
-                                    new[] { InlineKeyboardButton.WithCallbackData("<= Back", "<=Back") }
-                                });
-                                await client.SendMessage(
-                                    chatId: update.Message.Chat.Id,
-                                    text: "Please choose an option to find workers:",
-                                    replyMarkup: findWorkersMenu,
-                                    cancellationToken: token
-                                );
-                                break;
-                            case "⚙️Settings":
-                                await Settings(client, update, token);
-                                break;
-                            case "<= Back":
-                                await MainMenuButton(update.Message.Chat.Id, token);
-                                break;
-                        }
-                    }
-                }
-                if (IsLoggedIn(update.Message.Chat.Id) && update.Type == UpdateType.CallbackQuery)
-                {
-                    switch (update.CallbackQuery.Data)
-                    {
-                        case "Settings":
-                            await Settings(client, update, token);
-                            break;
-                        case "ChangePassword":
-                            await ChangePassword(client, update, token);
-                            break;
-                        case "DeleteAccount":
-                            await DeleteUser(client, update, token);
-                            break;
-                        case "Change User Info":
-                            await UpdateAccount(client, update, token);
-                            break;
-                        default:
-                            Console.WriteLine($"Unknown callback data: {update.CallbackQuery.Data}");
-                            break;
-                    }
-                }
+            await CalbackQuerryHelper(chatId, update, ct);
 
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error handling update: {ex.Message}");
-            }
+            await MessageHelper(chatId, update, ct);
         }
-        private async Task MainMenu(ITelegramBotClient client, Update update, CancellationToken ct)
+
+        private async Task Register(long chatId, string userInput, Update update, UserSession session, CancellationToken ct)
         {
-            if (update.Type != UpdateType.Message && update.Type != UpdateType.CallbackQuery)
+            if (userInput == "/start")
             {
-                return; 
+                await MainMenuButton(chatId, ct);
+                sessions.Remove(chatId);
+                return;
             }
-            await RegisterMain(botClient, update, ct);
 
-            if (update.Message is { Text: var userInput } message)
+            switch (session.CurrentStep)
             {
-                if (userInput == "0")
-                {
-                    await MainMenuButton(update.Message.Chat.Id, ct);
-                    return;
-                }
-            }
-        }
-        private async Task MainMenuButton(long id, CancellationToken ct)
-        {
-            var menu = new InlineKeyboardMarkup(new[]
-            {
-                   new[]
-                   {
-                       InlineKeyboardButton.WithCallbackData("Register", "Register"),
-                       InlineKeyboardButton.WithCallbackData("Login", "Login"),
-                   },
-                   new[]
-                   {
-                       InlineKeyboardButton.WithCallbackData("0", "0")
-                   }
-               });
-            try
-            {
-                await botClient.SendMessage(
-                    chatId: id,
-                    text: "Welcome to ProTasker! Please choose an option:",
-                    replyMarkup: menu,
-                    cancellationToken: ct
-                );
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error sending main menu: {ex.Message}");
-            }
-        }
-        private async Task RegisterMain(ITelegramBotClient botClient, Update update, CancellationToken ct)
-        {
-            try
-            {
-                if (update.CallbackQuery is not null)
-                {
-                    string data = update.CallbackQuery.Data;
-                    long chatId = update.Message?.Chat.Id ?? update.CallbackQuery?.Message?.Chat.Id ?? 0;
-                    if (data == "Register")
-                    {
-                        registrationSteps[chatId] = "firstname";
-                        registeringUsers[chatId] = new UserRegisterModel();
-                        await botClient.SendMessage(
-                            chatId: chatId,
-                            text: "👤 Enter First name...",
-                            cancellationToken: ct
-                        );
-                    }
-                    else if (data == "update")
-                    {
-                        updatingSteps[chatId] = "firstname";
-                        updatingUsers[chatId] = new UserUpdateModel();
-                        await botClient.SendMessage(
-                            chatId: chatId,
-                            text: "👤 Enter First name...",
-                            cancellationToken: ct
-                        );
-                    }
-                    else if (data == "delete")
-                    {
-                        await DeleteUser(botClient, update, ct);
-                    }
-                    else if (data == "Change_password")
-                    {
-                        await ChangePassword(botClient, update, ct);
-                    }
-                    else if (data == "Login")
-                    {
-                        loginSteps[chatId] = "login";
-                        loginUsers[chatId] = new UserLoginModel();
-
-                        await botClient.SendMessage(
-                            chatId: chatId,
-                            text: "📞 Enter your phone number:",
-                            cancellationToken: ct
-                        );
-                        return;
-                    }
-                    else if (data == "0")
-                    {
-                        await MainMenuButton(chatId, ct);
-                    }
-                }
-                if (update.Type == UpdateType.Message &&
-                    update.Message?.Text is not null ||
-                    update.Message.Contact is not null)
-                {
-                    long chatId = update.Message.Chat.Id;
-                    if(loginSteps.ContainsKey(chatId))
-                    {
-                        await Login(update, ct);
-                        return;
-                    }
-                    await Register(update, ct);
-                    return;
-                }
-                await MainMenuButton(update.Message.Chat.Id, ct);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error in RegisterMain: {ex.Message}");
-            }
-        }
-        private async Task UpdateAccount(ITelegramBotClient botClient, Update update, CancellationToken ct)
-        {
-            try
-            {
-                if (update.CallbackQuery is not null)
-                {
-                    string data = update.CallbackQuery.Data;
-                    long chatId = update.Message?.Chat.Id ?? update.CallbackQuery?.Message?.Chat.Id ?? 0;
-                    if (data == "Update")
-                    {
-                        updatingSteps[chatId] = "firstname";
-                        updatingUsers[chatId] = new UserUpdateModel();
-                        await botClient.SendMessage(
-                            chatId: chatId,
-                            text: "👤 Enter First name...",
-                            cancellationToken: ct
-                        );
-                    }
-                    return;
-                }
-
-                if (update.Message is { Text: var userInput } message)
-                {
-                    var chatId = message.Chat.Id;
-
-                    if (userInput == "/start")
-                    {
-                        await MainMenuButton(update.Message.Chat.Id, ct);
-                        return;
-                    }
-
-                    if (!registrationSteps.TryGetValue(chatId, out var step))
-                        return;
-
-                    if (step == "firstname")
-                    {
-                        updatingUsers[chatId].FirstName = userInput;
-                        updatingSteps[chatId] = "lastname";
-
-                        await botClient.SendMessage(chatId, "👤 Enter last name...", cancellationToken: ct);
-                    }
-                    else if (step == "lastname")
-                    {
-                        updatingUsers[chatId].LastName = userInput;
-                        updatingSteps[chatId] = "age";
-
-                        await botClient.SendMessage(chatId, "👤 Enter your age...", cancellationToken: ct);
-                    }
-                    else if (step == "age")
-                    {
-                        updatingUsers[chatId].Age = int.Parse(userInput);
-                    }
-                    else
-                    {
-                        await botClient.SendMessage(chatId, "❌ Invalid step. Please try again.", cancellationToken: ct);
-                        return;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-        }
-        private async Task DeleteUser(ITelegramBotClient botClient, Update update, CancellationToken ct)
-        {
-            string data = update.CallbackQuery.Data;
-            long chatId = update.Message?.Chat.Id ?? update.CallbackQuery?.Message?.Chat.Id ?? 0;
-            if (data == "Delete")
-            {
-                try
-                {
-                    userService.DeleteUser((int)chatId);
-
-                    await botClient.SendMessage(
-                        chatId: chatId,
-                        text: "✅ User deleted successfully.",
-                        cancellationToken: ct
-                    );
-                    registrationSteps.Remove(chatId);
-                    registeringUsers.Remove(chatId);
-                }
-                catch (Exception ex)
-                {
-                    await botClient.SendMessage(
-                        chatId: chatId,
-                        text: $"❌ Error deleting user: {ex.Message}",
-                        cancellationToken: ct
-                    );
-                }
-            }
-        }
-        private async Task PhoneButton(long chatId, Contact contact, CancellationToken ct)
-        {
-            if (registrationSteps.TryGetValue(chatId, out var step) && step == "phone")
-            {
-                var model = registeringUsers[chatId];
-
-                if (model == null)
-                {
-                    model = new UserRegisterModel();
-                    registeringUsers[chatId] = model;
-                }
-
-                model.PhoneNumber = contact.PhoneNumber;
-
-                registrationSteps[chatId] = "password";
-
-                await botClient.SendMessage(
-                    chatId: chatId,
-                    text: "🔐 Enter password...:",
-                    cancellationToken: ct
-                );
-            }
-        }
-        private async Task Register(Update update, CancellationToken ct)
-        {
-
-            if (update.Message is { Text: var userInput } message)
-            {
-                var chatId = message.Chat.Id;
-
-                if (userInput == "/start")
-                {
-                    await MainMenuButton(update.Message.Chat.Id, ct);
-                    return;
-                }
-
-                if (!registrationSteps.TryGetValue(chatId, out var step))
-                    return;
-
-                if (step == "firstname")
-                {
-                    registeringUsers[chatId].FirstName = userInput;
-                    registrationSteps[chatId] = "lastname";
-
+                case "firstname":
+                    session.Data["firstname"] = userInput;
+                    session.CurrentStep = "lastname";
                     await botClient.SendMessage(chatId, "👤 Enter last name...", cancellationToken: ct);
-                    return;
-                }
-                else if (step == "lastname")
-                {
-                    registeringUsers[chatId].LastName = userInput;
-                    registrationSteps[chatId] = "age";
+                    break;
 
+                case "lastname":
+                    session.Data["lastname"] = userInput;
+                    session.CurrentStep = "age";
                     await botClient.SendMessage(chatId, "👤 Enter your age...", cancellationToken: ct);
-                    return;
-                }
-                else if (step == "age")
-                {
-                    registeringUsers[chatId].Age = int.Parse(userInput);
-                    registrationSteps[chatId] = "phone";
+                    break;
+
+                case "age":
+                    if (!int.TryParse(userInput, out var age))
+                    {
+                        await botClient.SendMessage(chatId, "❌ Please enter a number...", cancellationToken: ct);
+                        return;
+                    }
+
+                    session.Data["age"] = userInput;
+                    session.CurrentStep = "phone";
 
                     var contactKeyboard =
-                        new ReplyKeyboardMarkup(new[]
-                        {
-                                  KeyboardButton.WithRequestContact("📱 Send your phone number")
-                        })
-                        {
-                            ResizeKeyboard = true,
-                            OneTimeKeyboard = true
-                        };
+                    new ReplyKeyboardMarkup(new[]
+                    {
+                        KeyboardButton.WithRequestContact("📱 Send your phone number")
+                    })
+                    {
+                        ResizeKeyboard = true,
+                        OneTimeKeyboard = true
+                    };
 
-                    await botClient.SendMessage(chatId, "📞 Click button to send phone number:", replyMarkup: contactKeyboard, cancellationToken: ct);
-                    return;
-                }
-                else if (step == "password")
-                {
-                    var model = registeringUsers[chatId];
-                    model.Password = userInput;
-                    model.Role = Domain.Enum.Role.User;
+                    await botClient.SendMessage(chatId, "📞 Click button to send phone number..", replyMarkup: contactKeyboard, cancellationToken: ct);
+                    break;
+
+                case "password":
+                    session.Data["password"] = userInput;
+
+                    var model = new UserRegisterModel
+                    {
+                        FirstName = session.Data["firstname"],
+                        LastName = session.Data["lastname"],
+                        Age = int.Parse(session.Data["age"]),
+                        PhoneNumber = NormalizerPhone(session.Data["phone"]),
+                        Password = session.Data["password"],
+                        Role = Role.User
+                    };
 
                     try
                     {
                         userService.Register(model);
 
                         await botClient.SendMessage(chatId, "✅ Registered!", cancellationToken: ct);
-                        await botClient.SendMessage(
-                            chatId: chatId,
-                            text: "Welcome to ProTasker! You can now use the bot.",
-                            cancellationToken: ct
-                        );
-
+                        await botClient.SendMessage(chatId, "⬅️ To return to the main menu, type /start!", cancellationToken: ct);
                     }
                     catch (Exception ex)
                     {
+                        await botClient.SendMessage(chatId, $"❌ Error: {ex.Message}   /start", cancellationToken: ct);
+                    }
+                    sessions.Remove(chatId);
+                    break;
+            }
+
+            if (update.Message?.Contact is { } contact)
+                RegisterPhoneHelper(chatId, contact, ct);
+        }
+
+        private async Task Login(long chatId, string userInput, Update update, UserSession session, CancellationToken ct)
+        {
+            if (userInput == "/start")
+            {
+                await MainMenuButton(chatId, ct);
+                sessions.Remove(chatId);
+                return;
+            }
+
+            switch (session.CurrentStep)
+            {
+                case "phone":
+                    session.Data["phone"] = NormalizerPhone(userInput);
+                    session.CurrentStep = "password";
+                    await botClient.SendMessage(chatId, "👤 Enter your password...", cancellationToken: ct);
+                    break;
+
+                case "password":
+                    session.Data["password"] = userInput;
+
+                    try
+                    {
+                        userViewModel = userService.Login(NormalizerPhone(session.Data["phone"]), session.Data["password"]);
+
+                        session.CurrentStep = "menu";
+
+                        Console.WriteLine($"{userViewModel.FirstName} akkauntiga kirdi");
+
+                        var menu = new ReplyKeyboardMarkup(new[]
+                                   {
+                                  new[] { new KeyboardButton("📱 My account"),
+                                            new KeyboardButton("📂 Search Worker By Categories") },
+                                  new[] { new KeyboardButton("📂 Search Worker By Region") },
+                                  new[] { new KeyboardButton("🔒 Logout") }
+                               })
+                        { ResizeKeyboard = true };
+
+                        await botClient.SendMessage(
+                            chatId,
+                            $"Xush kelibsiz, {userViewModel.FirstName}!\nIltimos kerakli bo‘limni tanlang:",
+                            replyMarkup: menu,
+                            cancellationToken: ct
+                        );
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("❌ Exception: " + ex.ToString());
                         await botClient.SendMessage(chatId, $"❌ Error: {ex.Message}", cancellationToken: ct);
                     }
+                    break;
+            }
 
-                    registrationSteps.Remove(chatId);
-                    registeringUsers.Remove(chatId);
+            if (session.CurrentStep == "menu" && update.Message?.Text is string commandText)
+            {
+                try
+                {
+                    switch (commandText)
+                    {
+                        case "📱 My account":
+                            await MyAccountMenu(chatId, ct, userViewModel);
+                            break;
+
+                        case "📂 Search Worker By Categories":
+                            await ShowCategoryPageAsync(botClient, chatId, 0, session);
+                            break;
+
+                        case "📂 Search Worker By Region":
+                            
+                            break;
+
+                        case "🔒 Logout":
+                            await Logout(chatId, ct, userViewModel);
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("❌ Exception: " + ex.ToString()); // To‘liq exception chiqadi
+                    await botClient.SendMessage(chatId, $"❌ Error: {ex.Message}", cancellationToken: ct);
                 }
             }
+        }
+
+        private async Task ContactHelper(long chatId, Update update, CancellationToken ct)
+        {
             if (update.Message?.Contact is { } contact)
             {
-                await PhoneButton(update.Message.Chat.Id, contact, ct);
-                return;
+                await RegisterPhoneHelper(chatId, contact, ct);
+
+                await LoginPhoneHelper(chatId, contact, ct);
             }
         }
-        private async Task ChangePassword(ITelegramBotClient botClient, Update update, CancellationToken ct)
+
+        private async Task RegisterPhoneHelper(long chatId, Contact contact, CancellationToken ct)
         {
-            if (update.CallbackQuery is not null)
+            if (sessions.TryGetValue(chatId, out var session) &&
+                    session.Mode == "register" &&
+                    session.CurrentStep == "phone")
             {
-                string data = update.CallbackQuery.Data;
-                long chatId = update.Message?.Chat.Id ?? update.CallbackQuery?.Message?.Chat.Id ?? 0;
-                if (data == "Change_password")
+                session.Data["phone"] = NormalizerPhone(contact.PhoneNumber);
+                session.CurrentStep = "password";
+
+                await botClient.SendMessage(chatId, "🔐 Enter password...", cancellationToken: ct);
+            }
+        }
+
+        private async Task LoginPhoneHelper(long chatId, Contact contact, CancellationToken ct)
+        {
+            if (sessions.TryGetValue(chatId, out var session) &&
+                    session.Mode == "login" &&
+                    session.CurrentStep == "phone")
+            {
+                session.Data["phone"] = NormalizerPhone(contact.PhoneNumber);
+                session.CurrentStep = "password";
+
+                await botClient.SendMessage(chatId, "🔐 Enter password...", cancellationToken: ct);
+            }
+        }
+
+        private async Task MainMenuButton(long chatId, CancellationToken ct)
+        {
+            var menu = new InlineKeyboardMarkup(new[]
+            {
+        new[]
+        {
+            InlineKeyboardButton.WithCallbackData("🟢 Register", "register"),
+            InlineKeyboardButton.WithCallbackData("🔵 Login", "login")
+        }
+    });
+
+            await botClient.SendMessage(
+                chatId: chatId,
+                text: "Assalomu alaykum\nIltimos, tanlang:",
+                replyMarkup: menu,
+                cancellationToken: ct
+            );
+        }
+
+        private async Task CalbackQuerryHelper(long chatId, Update update, CancellationToken ct)
+        {
+            var session = sessions.TryGetValue(chatId, out var existing) ? existing : new UserSession();
+            sessions[chatId] = session;
+
+            if (update.CallbackQuery?.Data is string data)
+            {
+                switch (data)
                 {
-                    registrationSteps[chatId] = "old_password";
-                    await botClient.SendMessage(
-                        chatId: chatId,
-                        text: "🔐 Enter your old password:",
-                        cancellationToken: ct
-                    );
+                    case "register":
+                        sessions[chatId] = new UserSession
+                        {
+                            Mode = "register",
+                            CurrentStep = "firstname"
+                        };
+                        await botClient.SendMessage(chatId, "👤 Enter First name...", cancellationToken: ct);
+                        return;
+
+                    case "login":
+                        sessions[chatId] = new UserSession
+                        {
+                            Mode = "login",
+                            CurrentStep = "phone"
+                        };
+                        var contactKeyboard = new ReplyKeyboardMarkup(new[]
+                        {
+                    KeyboardButton.WithRequestContact("📱 Send your phone number")
+                })
+                        {
+                            ResizeKeyboard = true,
+                            OneTimeKeyboard = true
+                        };
+                        await botClient.SendMessage(chatId, "📞 Click button to send phone number:", replyMarkup: contactKeyboard, cancellationToken: ct);
+                        return;
+
+                    case "update_account":
+                        sessions[chatId] = new UserSession
+                        {
+                            Mode = "update_account",
+                            CurrentStep = "new_firstname",
+                            Data = new Dictionary<string, string>()
+                        };
+                        await botClient.SendMessage(chatId, "📝 Enter new first name...", cancellationToken: ct);
+                        return;
+
+                    case "change_password":
+                        sessions[chatId] = new UserSession
+                        {
+                            Mode = "change_password",
+                            CurrentStep = "old_password",
+                            Data = new Dictionary<string, string>()
+                        };
+                        await botClient.SendMessage(chatId, "📝 Enter old password...", cancellationToken: ct);
+                        await botClient.AnswerCallbackQuery(update.CallbackQuery.Id, cancellationToken: ct);
+                        return;
                 }
+
+                if (data.StartsWith("category_page:"))
+                {
+                    int page = int.Parse(data.Split(":")[1]);
+
+                    if (session.Data.TryGetValue("LastCategoryMsgId", out var msgIdStr) &&
+                        int.TryParse(msgIdStr, out var msgId))
+                    {
+                        await botClient.DeleteMessage(chatId, msgId);
+                    }
+
+                    await ShowCategoryPageAsync(botClient, chatId, page, session);
+                    return;
+                }
+
+                if (data == "category_close")
+                {
+                    if (session.Data.TryGetValue("LastCategoryMsgId", out var msgIdStr) &&
+                        int.TryParse(msgIdStr, out var msgId))
+                    {
+                        await botClient.DeleteMessage(chatId, msgId);
+                    }
+                    return;
+                }
+
+                if (data.StartsWith("select_category:"))
+                {
+                    int categoryId = int.Parse(data.Split(":")[1]);
+
+                    session.Data["SelectedCategoryId"] = categoryId.ToString();
+                    session.Data["WorkerPage"] = "0";
+
+                    var allWorkers = workerService.SearchByCategory(categoryId);
+
+                    if (session.Data.TryGetValue("LastCategoryMsgId", out var lastCatMsgIdStr) &&
+                        int.TryParse(lastCatMsgIdStr, out var lastCatMsgId))
+                    {
+                        await botClient.DeleteMessage(chatId, lastCatMsgId);
+                    }
+
+                    await ShowWorkerPageAsync(botClient, chatId, 0, allWorkers, session);
+                    return;
+                }
+
+
+                if (data.StartsWith("worker_page:"))
+                {
+                    int page = int.Parse(data.Split(":")[1]);
+
+                    if (session.Data.TryGetValue("LastWorkerMsgId", out var msgIdStr) &&
+                        int.TryParse(msgIdStr, out var msgId))
+                    {
+                        await botClient.DeleteMessage(chatId, msgId);
+                    }
+
+                    var categoryId = int.Parse(session.Data["SelectedCategoryId"]);
+                    var workers = workerService.SearchByCategory(categoryId);
+
+                    await ShowWorkerPageAsync(botClient, chatId, page, workers, session);
+                    return;
+                }
+
+                if (data == "worker_close")
+                {
+                    if (session.Data.TryGetValue("LastWorkerMsgId", out var msgIdStr) &&
+                        int.TryParse(msgIdStr, out var msgId))
+                    {
+                        await botClient.DeleteMessage(chatId, msgId);
+                    }
+                    return;
+                }
+            }
+        }
+
+        private async Task MessageHelper(long chatId, Update update, CancellationToken ct)
+        {
+            try
+            {
+                if (update.Message?.Text is string userInput)
+                {
+                    if (userInput == "/start")
+                    {
+                        await MainMenuButton(chatId, ct);
+                        sessions.Remove(chatId);
+                        return;
+                    }
+
+                    if (sessions.TryGetValue(chatId, out var session))
+                    {
+                        if (session.Mode == "register")
+                            await Register(chatId, userInput, update, session, ct);
+
+                        else if (session.Mode == "login" || session.CurrentStep == "menu")
+                            await Login(chatId, userInput, update, session, ct);
+
+                        else if (session.Mode == "update_account")
+                            await UpdateAccount(chatId, userInput, update, session, ct);
+
+                        else if (session.Mode == "change_password")
+                            await ChangePassword(chatId, userInput, update, session, ct);
+                    }
+                }
+
+                await ContactHelper(chatId, update, ct);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                await botClient.SendMessage(chatId, $"Error: {ex.Message}", cancellationToken: ct);
+            }
+        }
+
+        private async Task MyAccountMenu(long chatId, CancellationToken ct, UserViewModel userViewModel)
+        {
+            var inlineKeyboard = new InlineKeyboardMarkup(new[]
+            {
+        new[]
+        {
+            InlineKeyboardButton.WithCallbackData("📝 Update Account", "update_account"),
+            InlineKeyboardButton.WithCallbackData("🔑 Change Password", "change_password")
+        }
+        });
+
+            await botClient.SendMessage(
+                chatId: chatId,
+                text: $"👤 Sizning profilingiz:\n\n" +
+                      $"👤 Ism: {userViewModel.FirstName}\n" +
+                      $"👥 Familiya: {userViewModel.LastName}\n" +
+                      $"🎂 Yosh: {userViewModel.Age}\n" +
+                      $"📞 Tel: {userViewModel.PhoneNumber}",
+                replyMarkup: inlineKeyboard,
+                cancellationToken: ct
+            );
+        }
+
+        private async Task UpdateAccount(long chatId, string userInput, Update update, UserSession session, CancellationToken ct)
+        {
+            if (userInput == "/start")
+            {
+                await MainMenuButton(chatId, ct);
+                sessions.Remove(chatId);
                 return;
             }
-            if (update.Message is { Text: var userInput })
+
+            switch (session.CurrentStep)
             {
-                var chatId = update.Message.Chat.Id;
-                if (userInput == "/start")
-                {
-                    await MainMenuButton(update.Message.Chat.Id, ct);
-                    return;
-                }
-                if (registrationSteps.TryGetValue(chatId, out var step) && step == "old_password")
-                {
-                    registrationSteps[chatId] = "new_password";
-                    await botClient.SendMessage(chatId, "🔐 Enter your new password:", cancellationToken: ct);
-                    return;
-                }
-            }
-            if (update.Message is { Text: var newPasswordInput })
-            {
-                var chatId = update.Message.Chat.Id;
-                if (newPasswordInput == "/start")
-                {
-                    await MainMenuButton(update.Message.Chat.Id, ct);
-                    return;
-                }
-                if (registrationSteps.TryGetValue(chatId, out var step) && step == "new_password")
-                {
+                case "new_firstname":
+                    session.Data["new_firstname"] = userInput;
+                    session.CurrentStep = "new_lastname";
+                    await botClient.SendMessage(chatId, "👤 Enter new last name...", cancellationToken: ct);
+                    break;
+
+                case "new_lastname":
+                    session.Data["new_lastname"] = userInput;
+                    session.CurrentStep = "new_age";
+                    await botClient.SendMessage(chatId, "👤 Enter new your age...", cancellationToken: ct);
+                    break;
+
+                case "new_age":
+                    if (!int.TryParse(userInput, out var age))
+                    {
+                        await botClient.SendMessage(chatId, "❌ Please enter a number...", cancellationToken: ct);
+                        return;
+                    }
+
+                    session.Data["new_age"] = userInput;
+
+                    var updateModel = new UserUpdateModel
+                    {
+                        FirstName = session.Data["new_firstname"],
+                        LastName = session.Data["new_lastname"],
+                        Age = int.Parse(session.Data["new_age"]),
+                    };
+
                     try
                     {
-                        userService.ChangeUserPassword(update.Message.Text, newPasswordInput, update.Message.Text);
-                        await botClient.SendMessage(chatId, "✅ Password changed successfully!", cancellationToken: ct);
+                        userService.UpdateUser(userViewModel.PhoneNumber, updateModel);
+
+                        await botClient.SendMessage(chatId, "✅ Updated!", cancellationToken: ct);
+
+                        session.CurrentStep = "menu";
+
+                        var menu = new ReplyKeyboardMarkup(new[]
+                        {
+                       new[] { new KeyboardButton("📱 My account"),
+                               new KeyboardButton("📂 Search Worker By Categories") },
+                       new[] { new KeyboardButton("📂 Search Worker By Region") },
+                       new[] { new KeyboardButton("🔒 Logout") }
+                    })
+                        { ResizeKeyboard = true };
+
+                        await botClient.SendMessage(chatId, "⬅️ You are back to the main panel:", replyMarkup: menu, cancellationToken: ct);
                     }
                     catch (Exception ex)
                     {
-                        await botClient.SendMessage(chatId, $"❌ Error changing password: {ex.Message}", cancellationToken: ct);
+                        await botClient.SendMessage(chatId, $"❌ Error: {ex.Message}   /start", cancellationToken: ct);
                     }
-                    registrationSteps.Remove(chatId);
-                    registeringUsers.Remove(chatId);
-                }
+                    session.CurrentStep = "menu";
+                    break;
             }
         }
-        private async Task Login(Update update, CancellationToken ct)
+
+        private async Task ChangePassword(long chatId, string userInput, Update update, UserSession session, CancellationToken ct)
         {
-            if (update.Message is { Text: var userInput } message)
+            if (userInput == "/start")
             {
-                var chatId = message.Chat.Id;
-                if (userInput == "/start")
-                {
-                    await MainMenuButton(update.Message.Chat.Id, ct);
-                    return;
-                }
-                if (!loginSteps.TryGetValue(chatId, out var step))
-                    return;
-                if (step == "login")
-                {
-                    loginUsers[chatId].PhoneNumber = userInput;
-                    loginSteps[chatId] = "password";
-                    await botClient.SendMessage(chatId, "🔐 Enter your password:", cancellationToken: ct);
-                    return;
-                }
-                else if (step == "password")
-                {
-                    loginUsers[chatId].Password = userInput;
+                await MainMenuButton(chatId, ct);
+                sessions.Remove(chatId);
+                return;
+            }
+
+            switch (session.CurrentStep)
+            {
+                case "old_password":
+                    session.Data["old_password"] = userInput;
+                    session.CurrentStep = "new_password";
+                    await botClient.SendMessage(chatId, "👤 Enter new password...", cancellationToken: ct);
+                    break;
+
+                case "new_password":
+
+                    session.Data["new_password"] = userInput;
+
                     try
                     {
-                        var user = userService.Login(loginUsers[chatId].PhoneNumber, loginUsers[chatId].Password);
+                        userService.ChangeUserPassword(userViewModel.PhoneNumber, session.Data["old_password"], session.Data["new_password"]);
 
-                        userSessions.Add(chatId, user.PhoneNumber);
+                        await botClient.SendMessage(chatId, "✅ Password Changed!", cancellationToken: ct);
 
-                        var userMenu = new InlineKeyboardMarkup(new[]
+                        session.CurrentStep = "menu";
+
+                        var menu = new ReplyKeyboardMarkup(new[]
                         {
-                            new[]
-                            {
-                                InlineKeyboardButton.WithCallbackData("🔍 Find Worker", "🔍 Find Worker"),
-                                InlineKeyboardButton.WithCallbackData("⚙️Settings", "⚙️Settings")
-                            },
-                            new[]
-                            {
-                                InlineKeyboardButton.WithCallbackData("0", "0")
+                       new[] { new KeyboardButton("📱 My account"),
+                               new KeyboardButton("📂 Search Worker By Categories") },
+                       new[] { new KeyboardButton("📂 Search Worker By Region") },
+                       new[] { new KeyboardButton("🔒 Logout") }
+                    })
+                        { ResizeKeyboard = true };
 
-                            }
-                        });
-                        await botClient.SendMessage(
-                            chatId: chatId,
-                            text: $"Welcome, {user.FirstName} {user.LastName}! You are logged in!.",
-                            replyMarkup: userMenu,
-                            cancellationToken: ct
-                        );
-
+                        await botClient.SendMessage(chatId, "⬅️ You are back to the main panel:", replyMarkup: menu, cancellationToken: ct);
                     }
                     catch (Exception ex)
                     {
-                        await botClient.SendMessage(chatId, $"❌ Error: {ex.Message}", cancellationToken: ct);
+                        await botClient.SendMessage(chatId, $"❌ Error: {ex.Message}  /start", cancellationToken: ct);
                     }
-                }
+                    session.CurrentStep = "menu";
+                    break;
             }
         }
-        private async Task Settings(ITelegramBotClient botClient, Update update, CancellationToken ct)
+
+        private async Task ShowCategoryPageAsync(ITelegramBotClient botClient, long chatId, int page, UserSession session)
         {
-            if (update.CallbackQuery is not null)
+            int pageSize = 5;
+            var pagedCategories = categoryService.GetAll().Skip(page * pageSize).Take(pageSize).ToList();
+
+            if (pagedCategories.Count == 0)
             {
-                string data = update.CallbackQuery.Data;
-                long chatId = update.Message?.Chat.Id ?? update.CallbackQuery?.Message?.Chat.Id ?? 0;
-                if (data == "Settings")
-                {
-                    var menu = new InlineKeyboardMarkup(new[]
-                    {
-                        new[]
-                        {
-                            InlineKeyboardButton.WithCallbackData("Change Password", "ChangePassword"),
-                            InlineKeyboardButton.WithCallbackData("Delete Account", "DeleteAccount")
-                        },
-                        new[]
-                        {
-                            InlineKeyboardButton.WithCallbackData("Change User Info","Change User Info"),
-                            InlineKeyboardButton.WithCallbackData("0", "0")
-                        }
-                    });
-                    await botClient.SendMessage(
-                        chatId: chatId,
-                        text: "Please choose an option:",
-                        replyMarkup: menu,
-                        cancellationToken: ct
-                    );
-                }
+                await botClient.SendMessage(chatId, "Ushbu sahifada category topilmadi.");
+                return;
             }
+
+            var buttons = new List<InlineKeyboardButton[]>();
+            foreach (var category in pagedCategories)
+            {
+                buttons.Add(new[]
+                {
+            InlineKeyboardButton.WithCallbackData($"📂 {category.Name}", $"select_category:{category.Id}")
+                });
+            }
+
+            buttons.Add(new[]
+            {
+            InlineKeyboardButton.WithCallbackData("⏮️", $"category_page:{page - 1}"),
+            InlineKeyboardButton.WithCallbackData("⏭️", $"category_page:{page + 1}")
+            });
+
+            buttons.Add(new[]
+            {
+            InlineKeyboardButton.WithCallbackData("❌ Yopish", "category_close")
+            });
+
+            var keyboard = new InlineKeyboardMarkup(buttons);
+
+            var sentMsg = await botClient.SendMessage(
+                chatId: chatId,
+                text: "📁 Kategoriyalar ro'yxati:",
+                replyMarkup: keyboard
+            );
+
+            session.Data["LastCategoryMsgId"] = sentMsg.MessageId.ToString();
+        }
+
+
+        private async Task ShowWorkerPageAsync(ITelegramBotClient botClient, long chatId, int page, List<WorkerSearchModel> allWorkers, UserSession session)
+        {
+            int pageSize = 5;
+            var pagedWorkers = allWorkers.Skip(page * pageSize).Take(pageSize).ToList();
+
+            if (pagedWorkers.Count == 0)
+            {
+                await botClient.SendMessage(chatId, "Ushbu sahifada worker topilmadi.");
+                return;
+            }
+
+            var textBuilder = new StringBuilder();
+            for (int i = 0; i < pagedWorkers.Count; i++)
+            {
+                var w = pagedWorkers[i];
+                textBuilder.AppendLine($"👷‍ <b>{w.FirstName} {w.LastName}</b>");
+                textBuilder.AppendLine($"📞 Phone: {w.PhoneNumber}");
+                textBuilder.AppendLine($" {w.Category}");
+                textBuilder.AppendLine($" {w.Bio}\n");
+                textBuilder.AppendLine($"---------------------------");
+                textBuilder.AppendLine($"---------------------------\n");
+            }
+
+            string text = textBuilder.ToString();
+
+            var inlineKeyboard = new InlineKeyboardMarkup(new[]
+            {
+            new[]
+            {
+            InlineKeyboardButton.WithCallbackData("⏮️", $"worker_page:{page - 1}"),
+            InlineKeyboardButton.WithCallbackData("⏭️", $"worker_page:{page + 1}")
+            },
+            new[]
+            {
+            InlineKeyboardButton.WithCallbackData("❌ Close", $"worker_close")
+            }
+            });
+
+            var sentMsg = await botClient.SendMessage(
+                chatId: chatId,
+                text: text,
+                parseMode: ParseMode.Html,
+                replyMarkup: inlineKeyboard);
+
+            session.Data["LastWorkerMsgId"] = sentMsg.MessageId.ToString();
+        }
+
+
+        private async Task Logout(long chatId, CancellationToken ct, UserViewModel UserViewModel)
+        {
+            sessions.Remove(chatId);
+            await botClient.SendMessage(chatId, "🔒 Siz tizimdan chiqdingiz.", cancellationToken: ct);
+            await MainMenuButton(chatId, ct);
+        }
+
+        private string NormalizerPhone(string phone)
+        {
+            return phone.Replace("+", "").Trim();
         }
     }
 }

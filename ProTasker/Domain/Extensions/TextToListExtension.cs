@@ -47,7 +47,7 @@ public static class TextToListExtension
         {
             string[] parts = line.Trim().Split(',');
 
-            var locParts = parts[10].Split('|', StringSplitOptions.RemoveEmptyEntries);
+            var locParts = parts[9].Split('|', StringSplitOptions.RemoveEmptyEntries);
 
             workers.Add(new Worker
             {
@@ -60,9 +60,8 @@ public static class TextToListExtension
                 Age = int.Parse(parts[6]),
                 Bio = parts[7],
                 CategoryId = parts[8]
-                               .Split(';', StringSplitOptions.RemoveEmptyEntries)
-                               .Select(int.Parse).ToList(),
-                Gender = System.Enum.Parse<Gender>(parts[9]),
+            .Split(';', StringSplitOptions.RemoveEmptyEntries)
+            .Select(int.Parse).ToList(),
                 Location = new Location
                 {
                     Region = System.Enum.Parse<Region>(locParts[0]),
@@ -70,6 +69,7 @@ public static class TextToListExtension
                     Street = locParts[2]
                 }
             });
+        
         }
 
         return workers;
@@ -95,8 +95,7 @@ public static class TextToListExtension
                 PhoneNumber = parts[3],
                 Password = parts[4],
                 Role = System.Enum.Parse<Role>(parts[5]),
-                Age = int.Parse(parts[6]),
-                Gender = System.Enum.Parse<Gender>(parts [7])
+                Age = int.Parse(parts[6])
             });
         }
     

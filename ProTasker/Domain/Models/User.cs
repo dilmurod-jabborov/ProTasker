@@ -18,10 +18,8 @@ public class User
     public string Password { get; set; }
     public Role Role { get; set; } //Admin, User va Worker
     public int Age { get; set; }
-    public Gender Gender { get; set; }
-
     public override string ToString()
     {
-        return $"{Id},{FirstName},{LastName},{PhoneNumber},{Password},{Role},{Age},{Gender}";
+        return $"{Id},{FirstName},{LastName},{PhoneNumber},{Password},{Role},{Age}";
     }
 }

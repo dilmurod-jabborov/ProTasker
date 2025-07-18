@@ -1,4 +1,4 @@
-﻿namespace ProTasker.Menu
+﻿namespace ProTasker.Menu.AdminUIFolder
 {
     public class AdminSession
     {

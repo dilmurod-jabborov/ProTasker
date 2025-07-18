@@ -20,7 +20,6 @@ public class Worker
     public int Age { get; set; }
     public string Bio { get; set; }
     public List<int> CategoryId { get; set; }
-    public Gender Gender { get; set; }
     public Location Location { get; set; }
 
     public override string ToString()
@@ -30,6 +29,6 @@ public class Worker
             ? $"{Location.Region}|{Location.District}|{Location.Street}"
             : "";
 
-        return $"{Id},{FirstName},{LastName},{PhoneNumber},{Password},{Role},{Age},{Bio},{categories},{Gender},{location}";
+        return $"{Id},{FirstName},{LastName},{PhoneNumber},{Password},{Role},{Age},{Bio},{categories},{location}";
     }
 }

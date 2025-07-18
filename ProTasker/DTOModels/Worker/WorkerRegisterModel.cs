@@ -13,6 +13,5 @@ public class WorkerRegisterModel
     public int Age {  get; set; }
     public string Bio { get; set; }
     public List<int> CategoryId { get; set; }
-    public Gender Gender { get; set; }
     public Location Location { get; set; }
 }
