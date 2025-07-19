@@ -16,26 +16,38 @@ namespace ProTasker.Menu;
 public class WorkerUI
 {
     private readonly IDictionary<long, WorkerUpdateModel> updatingWorkers;
-    private IDictionary<long, MainSession> sessions;
+    private IDictionary<long, WorkerSession> sessions;
     private readonly IWorkerService workerService;
     private readonly ICategoryService categoryService;
     private WorkerViewModel workerViewModel;
     private WorkerRegisterModel workerRegisterModel;
     private ITelegramBotClient botClient;
 
-    public WorkerUI(ITelegramBotClient botClient, IDictionary<long, MainSession> sessions)
+    public WorkerUI(string token)
     {
-        this.botClient =botClient; 
+        botClient = new TelegramBotClient(token); 
         workerService = new WorkerService();
         categoryService = new CategoryService();
         workerViewModel = new WorkerViewModel();
         updatingWorkers = new Dictionary<long, WorkerUpdateModel>();
-        this.sessions = sessions;
+        sessions = new Dictionary<long, WorkerSession>();
         workerRegisterModel = new WorkerRegisterModel();
     }
 
-    public async Task StartAsync(long chatId, CancellationToken ct)
+    public async Task StartAsync()
     {
+        using var cts = new CancellationTokenSource();
+
+        botClient.StartReceiving(
+            updateHandler: MainMenu,
+            HandleErrorAsync,
+            receiverOptions: new ReceiverOptions
+            {
+                AllowedUpdates = new[] { UpdateType.Message, UpdateType.CallbackQuery }
+            },
+            cancellationToken: cts.Token
+        );
+
         var me = await botClient.GetMe();
         Console.WriteLine($"✅ Worker bot ishga tushdi: @{me.Username}");
 
@@ -47,8 +59,6 @@ public class WorkerUI
         var chatId = update.Message?.Chat.Id
                      ?? update.CallbackQuery?.Message.Chat.Id
                      ?? 0;
-
-        await MainMenuButton(chatId, ct);
 
         await CalbackQuerryHelper(chatId, update, ct);
 
@@ -62,7 +72,7 @@ public class WorkerUI
             switch (data)
             {
                 case "register":
-                    sessions[chatId] = new MainSession
+                    sessions[chatId] = new WorkerSession
                     {
                         Mode = "register",
                         CurrentStep = "firstname"
@@ -72,7 +82,7 @@ public class WorkerUI
                     return;
 
                 case "login":
-                    sessions[chatId] = new MainSession
+                    sessions[chatId] = new WorkerSession
                     {
                         Mode = "login",
                         CurrentStep = "phone"
@@ -92,7 +102,7 @@ public class WorkerUI
                     return;
 
                 case "update_account":
-                    sessions[chatId] = new MainSession
+                    sessions[chatId] = new WorkerSession
                     {
                         Mode = "update_account",
                         CurrentStep = "new_firstname",
@@ -104,7 +114,7 @@ public class WorkerUI
                     return;
 
                 case "change_password":
-                    sessions[chatId] = new MainSession
+                    sessions[chatId] = new WorkerSession
                     {
                         Mode = "change_password",
                         CurrentStep = "old_password",
@@ -384,7 +394,7 @@ public class WorkerUI
         );
     }
 
-    private async Task Register(long chatId, string userInput, Update update, MainSession session, CancellationToken ct)
+    private async Task Register(long chatId, string userInput, Update update, WorkerSession session, CancellationToken ct)
     {
         if (userInput == "/start")
         {
@@ -528,7 +538,7 @@ public class WorkerUI
         }
     }
 
-    private async Task Login(long chatId, string userInput, Update update, MainSession session, CancellationToken ct)
+    private async Task Login(long chatId, string userInput, Update update, WorkerSession session, CancellationToken ct)
     {
         if (userInput == "/start")
         {
@@ -739,7 +749,7 @@ public class WorkerUI
         );
     }
 
-    private async Task UpdateAccount(long chatId, string userInput, Update update, MainSession session, CancellationToken ct)
+    private async Task UpdateAccount(long chatId, string userInput, Update update, WorkerSession session, CancellationToken ct)
     {
         if (userInput == "/start")
         {
@@ -812,7 +822,7 @@ public class WorkerUI
         }
     }
 
-    private async Task ChangePassword(long chatId, string userInput, Update update, MainSession session, CancellationToken ct)
+    private async Task ChangePassword(long chatId, string userInput, Update update, WorkerSession session, CancellationToken ct)
     {
         if (userInput == "/start")
         {

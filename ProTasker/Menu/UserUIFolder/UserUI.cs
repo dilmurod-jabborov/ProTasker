@@ -32,11 +32,11 @@ namespace ProTasker.Menu.UserUIFolder
         private readonly ICategoryService categoryService;
         private UserViewModel userViewModel;
         private readonly IWorkerService workerService;
-        private IDictionary<long, MainSession> sessions;
-        public UserUI(ITelegramBotClient botClient, IDictionary<long, MainSession> sessions)
+        private IDictionary<long, UserSession> sessions;
+        public UserUI(string token)
         {
-            this.sessions = sessions;
-            this.botClient = botClient;
+            sessions = new Dictionary<long, UserSession>();
+            botClient = new TelegramBotClient(token);
             userService = new UserService();
             categoryService = new CategoryService();
             userViewModel = new UserViewModel();
@@ -44,12 +44,24 @@ namespace ProTasker.Menu.UserUIFolder
             workerService = new WorkerService();
         }
 
-        public async Task StartAsync(long chatId, CancellationToken ct)
+        public async Task StartAsync()
         {
+            using var ct = new CancellationTokenSource();
+
+            botClient.StartReceiving(
+                updateHandler: MainMenu,
+                HandleErrorAsync,
+                receiverOptions: new ReceiverOptions
+                {
+                    AllowedUpdates = new[] { UpdateType.Message, UpdateType.CallbackQuery }
+                },
+                cancellationToken: ct.Token
+            );
+
             var me = await botClient.GetMe();
             Console.WriteLine($"✅ User bot ishga tushdi: @{me.Username}");
 
-            await Task.Delay(-1, ct);
+            await Task.Delay(-1);
         }
 
         public async Task MainMenu(ITelegramBotClient botClient, Update update, CancellationToken ct)
@@ -63,7 +75,13 @@ namespace ProTasker.Menu.UserUIFolder
             await MessageHelper(chatId, update, ct);
         }
 
-        private async Task Register(long chatId, string userInput, Update update, MainSession session, CancellationToken ct)
+        private Task HandleErrorAsync(ITelegramBotClient bot, Exception exception, CancellationToken ct)
+        {
+            Console.WriteLine($"❌ Xatolik: {exception.Message}");
+            return Task.CompletedTask;
+        }
+
+        private async Task Register(long chatId, string userInput, Update update, UserSession session, CancellationToken ct)
         {
             if (userInput == "/start")
             {
@@ -141,7 +159,7 @@ namespace ProTasker.Menu.UserUIFolder
                 RegisterPhoneHelper(chatId, contact, ct);
         }
 
-        private async Task Login(long chatId, string userInput, Update update, MainSession session, CancellationToken ct)
+        private async Task Login(long chatId, string userInput, Update update, UserSession session, CancellationToken ct)
         {
             if (userInput == "/start")
             {
@@ -224,7 +242,7 @@ namespace ProTasker.Menu.UserUIFolder
             }
         }
 
-        private async Task ShowSearchByRegionPageAsync(ITelegramBotClient botClient, long chatId, MainSession session)
+        private async Task ShowSearchByRegionPageAsync(ITelegramBotClient botClient, long chatId, UserSession session)
         {
             var buttons = new List<List<InlineKeyboardButton>>();
 
@@ -316,7 +334,7 @@ namespace ProTasker.Menu.UserUIFolder
 
         private async Task CalbackQuerryHelper(long chatId, Update update, CancellationToken ct)
         {
-            var session = sessions.TryGetValue(chatId, out var existing) ? existing : new MainSession();
+            var session = sessions.TryGetValue(chatId, out var existing) ? existing : new UserSession();
             sessions[chatId] = session;
 
             if (update.CallbackQuery?.Data is string data)
@@ -324,7 +342,7 @@ namespace ProTasker.Menu.UserUIFolder
                 switch (data)
                 {
                     case "register":
-                        sessions[chatId] = new MainSession
+                        sessions[chatId] = new UserSession
                         {
                             Mode = "register",
                             CurrentStep = "firstname"
@@ -333,7 +351,7 @@ namespace ProTasker.Menu.UserUIFolder
                         return;
 
                     case "login":
-                        sessions[chatId] = new MainSession
+                        sessions[chatId] = new UserSession
                         {
                             Mode = "login",
                             CurrentStep = "phone"
@@ -350,7 +368,7 @@ namespace ProTasker.Menu.UserUIFolder
                         return;
 
                     case "update_account":
-                        sessions[chatId] = new MainSession
+                        sessions[chatId] = new UserSession
                         {
                             Mode = "update_account",
                             CurrentStep = "new_firstname",
@@ -360,7 +378,7 @@ namespace ProTasker.Menu.UserUIFolder
                         return;
 
                     case "change_password":
-                        sessions[chatId] = new MainSession
+                        sessions[chatId] = new UserSession
                         {
                             Mode = "change_password",
                             CurrentStep = "old_password",
@@ -538,7 +556,7 @@ namespace ProTasker.Menu.UserUIFolder
             );
         }
 
-        private async Task UpdateAccount(long chatId, string userInput, Update update, MainSession session, CancellationToken ct)
+        private async Task UpdateAccount(long chatId, string userInput, Update update, UserSession session, CancellationToken ct)
         {
             if (userInput == "/start")
             {
@@ -605,7 +623,7 @@ namespace ProTasker.Menu.UserUIFolder
             }
         }
 
-        private async Task ChangePassword(long chatId, string userInput, Update update, MainSession session, CancellationToken ct)
+        private async Task ChangePassword(long chatId, string userInput, Update update, UserSession session, CancellationToken ct)
         {
             if (userInput == "/start")
             {
@@ -654,7 +672,7 @@ namespace ProTasker.Menu.UserUIFolder
             }
         }
 
-        private async Task ShowSearchByCategoryPageAsync(ITelegramBotClient botClient, long chatId, int page, MainSession session)
+        private async Task ShowSearchByCategoryPageAsync(ITelegramBotClient botClient, long chatId, int page, UserSession session)
         {
             int pageSize = 5;
             var pagedCategories = categoryService.GetAll().Skip(page * pageSize).Take(pageSize).ToList();
@@ -696,7 +714,7 @@ namespace ProTasker.Menu.UserUIFolder
             session.Data["LastCategoryMsgId"] = sentMsg.MessageId.ToString();
         }
 
-        private async Task ShowWorkerPageAsync(ITelegramBotClient botClient, long chatId, int page, List<WorkerSearchModel> allWorkers, MainSession session)
+        private async Task ShowWorkerPageAsync(ITelegramBotClient botClient, long chatId, int page, List<WorkerSearchModel> allWorkers, UserSession session)
         {
             int pageSize = 5;
             var pagedWorkers = allWorkers.Skip(page * pageSize).Take(pageSize).ToList();

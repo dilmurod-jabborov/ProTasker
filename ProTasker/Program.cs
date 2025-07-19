@@ -15,10 +15,8 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
-        var admin = new AdminUI("7806562984:AAH1bYTCWl3a3WMj9Wbru71CkevZJ8KyVuk");
+        MainMenu mainMenu = new MainMenu();
 
-        var UserWorker = new MainMenu("8078697381:AAH8WOUIML8fd1AeLHOkgZeuy6uX8Qfp8PU");
-
-        await Task.WhenAll(admin.StartAsync(), UserWorker.StartAsync());
+        await mainMenu.Menu();
     }
 }
