@@ -1,20 +1,21 @@
-1,Ulug'bek,Toshpo'latov,998901234567,1234,Worker,24,Ehtiyotkor usta,3;7;12,Tashkent|Yunusobod|Temiryo‘l ko‘chasi
-2,Muhammadali,Karimov,998911112233,4321,Worker,29,Zamonaviy duradgor,2;5;9,Samarkand|Ishtikhon|Buyuk Ipak Yo‘li
-3,Islomjon,Abdurahmonov,998939876543,pass123,Worker,31,Halol va tajribali,1;4,Bukhara|Gijduvon|Xalqlar do‘stligi
-4,Javohir,Begmatov,998907654321,qwerty,Worker,27,Yangi uslubdagi usta,2;6;10,Fergana|Qo‘qon|Muqimiy ko‘chasi
-5,Oybek,Tursunov,998935555555,oybek123,Worker,35,Tajribali va xushmuomala,1;7;11,Tashkent|Sergeli|Furqat ko‘chasi
-6,Kamoliddin,Narzullaev,998933322211,kamol456,Worker,30,Ishiga mas’uliyatli,2;3;6,Andijan|Asaka|Istiqlol ko‘chasi
+1,Ulug'bek,Toshpo'latov,998901234567,1234,Worker,24,Ehtiyotkor usta,3;7;12,Tashkent|Yunusobod|Temiryoï¿½l koï¿½chasi
+2,Muhammadali,Karimov,998911112233,4321,Worker,29,Zamonaviy duradgor,2;5;9,Samarkand|Ishtikhon|Buyuk Ipak Yoï¿½li
+3,Islomjon,Abdurahmonov,998939876543,pass123,Worker,31,Halol va tajribali,1;4,Bukhara|Gijduvon|Xalqlar doï¿½stligi
+4,Javohir,Begmatov,998907654321,qwerty,Worker,27,Yangi uslubdagi usta,2;6;10,Fergana|Qoï¿½qon|Muqimiy koï¿½chasi
+5,Oybek,Tursunov,998935555555,oybek123,Worker,35,Tajribali va xushmuomala,1;7;11,Tashkent|Sergeli|Furqat koï¿½chasi
+6,Kamoliddin,Narzullaev,998933322211,kamol456,Worker,30,Ishiga masï¿½uliyatli,2;3;6,Andijan|Asaka|Istiqlol koï¿½chasi
 7,Sanjar,Eshmurodov,998901212121,sanjar2020,Worker,22,Tajribasi bor ustasi,4;5,Khorezm|Urganch|Al-Xorazmiy
-8,Farrux,Rahmonov,998907878787,rahmon987,Worker,28,Yaxshi xizmat ko‘rsatuvchi,2;6;12,Navoi|Zarafshon|Navro‘z
-9,Abbos,To‘lqinov,998935656565,123456,Worker,26,Mijozlarni qadrlovchi,3;7,Namangan|Pop|Ipak Yo‘li ko‘chasi
-10,Bekzod,Xolmatov,998901010101,hello123,Worker,33,Tez va toza ishlovchi,5;9;11,Tashkent|Chilonzor|Navbahor ko‘chasi
-11,Shuhrat,Abduganiyev,998911919191,test321,Worker,25,Tinch va vijdonli usta,1;3,Karakalpakstan|Nukus|Berdaq ko‘chasi
-12,Shohjahon,Xusanov,998936363636,xusan123,Worker,27,Ishini sevuvchi inson,4;6;10,Tashkent|Bektemir|Temiryo‘lchilar
-13,Rahmatillo,Yoqubov,998908989898,yoqub456,Worker,34,Halollikni ustuvor qo‘ygan,2;8;11,Fergana|Marg‘ilon|Qo‘qon ko‘chasi
-14,Murod,Ergashev,998939393939,murod111,Worker,32,Xizmat ko‘rsatishda yetakchi,1;5;9,Bukhara|Kogon|Bahor ko‘chasi
-15,Jamshid,Norqulov,998907070707,jamshid77,Worker,23,Har tomonlama mahoratli,3;6;12,Namangan|Kosonsoy|Sohil ko‘chasi
-16,Diyor,Rustamov,998935353535,abc123,Worker,29,Yuqori malakali usta,2;4;8,Surkhandarya|Termiz|Sho‘rchi ko‘chasi
-17,Shavkat,Aliyev,998912121212,password1,Worker,31,Professional yondashuv,5;6;10,Tashkent|Uchtepa|Xurshid ko‘chasi
-18,Habibullo,Maxmudov,998901818181,maxhabib,Worker,26,Doimiy mijozlarga ega,4;7;11,Andijan|Xonobod|Bog‘ishamol ko‘chasi
-19,Azizbek,G‘ulomov,998934444444,azizbek999,Worker,28,Sifatli va arzon xizmat,1;3;9,Tashkent|Yashnobod|Tinchlik ko‘chasi
-20,Tohir,Salimov,998909090909,tohir2025,Worker,34,Kafolatli xizmat ko‘rsatadi,2;5;12,Samarkand|Payariq|Registon ko‘chasi
+8,Farrux,Rahmonov,998907878787,rahmon987,Worker,28,Yaxshi xizmat koï¿½rsatuvchi,2;6;12,Navoi|Zarafshon|Navroï¿½z
+9,Abbos,Toï¿½lqinov,998935656565,123456,Worker,26,Mijozlarni qadrlovchi,3;7,Namangan|Pop|Ipak Yoï¿½li koï¿½chasi
+10,Bekzod,Xolmatov,998901010101,hello123,Worker,33,Tez va toza ishlovchi,5;9;11,Tashkent|Chilonzor|Navbahor koï¿½chasi
+11,Shuhrat,Abduganiyev,998911919191,test321,Worker,25,Tinch va vijdonli usta,1;3,Karakalpakstan|Nukus|Berdaq koï¿½chasi
+12,Shohjahon,Xusanov,998936363636,xusan123,Worker,27,Ishini sevuvchi inson,4;6;10,Tashkent|Bektemir|Temiryoï¿½lchilar
+13,Rahmatillo,Yoqubov,998908989898,yoqub456,Worker,34,Halollikni ustuvor qoï¿½ygan,2;8;11,Fergana|Margï¿½ilon|Qoï¿½qon koï¿½chasi
+14,Murod,Ergashev,998939393939,murod111,Worker,32,Xizmat koï¿½rsatishda yetakchi,1;5;9,Bukhara|Kogon|Bahor koï¿½chasi
+15,Jamshid,Norqulov,998907070707,jamshid77,Worker,23,Har tomonlama mahoratli,3;6;12,Namangan|Kosonsoy|Sohil koï¿½chasi
+16,Diyor,Rustamov,998935353535,abc123,Worker,29,Yuqori malakali usta,2;4;8,Surkhandarya|Termiz|Shoï¿½rchi koï¿½chasi
+17,Shavkat,Aliyev,998912121212,password1,Worker,31,Professional yondashuv,5;6;10,Tashkent|Uchtepa|Xurshid koï¿½chasi
+18,Habibullo,Maxmudov,998901818181,maxhabib,Worker,26,Doimiy mijozlarga ega,4;7;11,Andijan|Xonobod|Bogï¿½ishamol koï¿½chasi
+19,Azizbek,Gï¿½ulomov,998934444444,azizbek999,Worker,28,Sifatli va arzon xizmat,1;3;9,Tashkent|Yashnobod|Tinchlik koï¿½chasi
+20,Tohir,Salimov,998909090909,tohir2025,Worker,34,Kafolatli xizmat koï¿½rsatadi,2;5;12,Samarkand|Payariq|Registon koï¿½chasi
+21,Dilmurodchik,Jabborov,998947157279,Dilmurod-03,Worker,22,sqsmwdnec,3;6;5;11,Namangan|efewffewrfwe|fwefewffw

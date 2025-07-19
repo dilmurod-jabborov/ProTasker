@@ -17,6 +17,7 @@ public class WorkerService : IWorkerService
     {
         categoryService = new CategoryService();
     }
+
     public void Register(WorkerRegisterModel model)
     {
         var text = FileHelper.ReadFromFile(PathHolder.WorkersFilePath);
@@ -86,13 +87,13 @@ public class WorkerService : IWorkerService
 
     }
 
-    public void Update(int id, WorkerUpdateModel model)
+    public void Update(string phoneNumber, WorkerUpdateModel model)
     {
         var text = FileHelper.ReadFromFile(PathHolder.WorkersFilePath);
 
         var workers = text.ToWorkers();
 
-        var existWorker = workers.Find(u => u.Id == id);
+        var existWorker = workers.Find(u => u.PhoneNumber == phoneNumber);
         if (existWorker == null)
             throw new Exception("This worker is not found!");
 
@@ -101,13 +102,13 @@ public class WorkerService : IWorkerService
         FileHelper.WriteToFile(PathHolder.WorkersFilePath, updateLines.ConvertToString<Worker>());
     }
 
-    public void Delete(int id)
+    public void Delete(string phoneNumber)
     {
         var text = FileHelper.ReadFromFile(PathHolder.WorkersFilePath);
 
         var workers = text.ToWorkers();
 
-        var existWorker = workers.Find(u => u.Id == id)
+        var existWorker = workers.Find(u => u.PhoneNumber == phoneNumber)
           ?? throw new Exception("This user is not found!");
 
 
@@ -159,21 +160,21 @@ public class WorkerService : IWorkerService
         };
     }
 
-    public void ChangePassword(int id, string oldPassword, string newPassword)
+    public void ChangePassword(string phoneNumber, string oldPassword, string newPassword)
     {
         var text = FileHelper.ReadFromFile(PathHolder.WorkersFilePath);
 
         var workers = text.ToWorkers();
 
-        var existWorker = workers.Find(u => u.Id == id && u.Password == oldPassword)
+        var existWorker = workers.Find(u => u.PhoneNumber == phoneNumber && u.Password == oldPassword)
             ?? throw new Exception("This worker is not found or old password is incorrect!");
 
         newPassword.CheckerPassword();
-        if (existWorker.Password == oldPassword)
+
+        if (existWorker.Password == newPassword)
             throw new Exception("The old and new password should not be the same!");
 
         existWorker.Password = newPassword;
-
 
         FileHelper.WriteToFile(PathHolder.WorkersFilePath, workers.ConvertToString<Worker>());
     }
@@ -248,5 +249,33 @@ public class WorkerService : IWorkerService
         }
 
         return workerList;
+    }
+
+    public void ChangeCategory(string phoneNumber, List<int> ids)
+    {
+        var text = FileHelper.ReadFromFile(PathHolder.WorkersFilePath);
+
+        var workers = text.ToWorkers();
+
+        var exists = workers.Find(w => w.PhoneNumber == phoneNumber)
+             ?? throw new Exception("This worker is not found!");
+
+        exists.CategoryId = ids;
+
+        FileHelper.WriteToFile(PathHolder.WorkersFilePath, workers.ConvertToString<Worker>());
+    }
+
+    public void ChangeLocation(string phoneNumber, Location location)
+    {
+        var text = FileHelper.ReadFromFile(PathHolder.WorkersFilePath);
+
+        var workers = text.ToWorkers();
+
+        var exists = workers.Find(w => w.PhoneNumber == phoneNumber)
+             ?? throw new Exception("This worker is not found!");
+
+        exists.Location = location;
+
+        FileHelper.WriteToFile(PathHolder.WorkersFilePath, workers.ConvertToString<Worker>());
     }
 }

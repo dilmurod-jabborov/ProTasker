@@ -1,17 +1,18 @@
-2,Tozalik
-3,Oshpazlik / Ovqat tayyorlash
-4,Yuk tashish / Og�ir ishlar
-5,Repetitorlik / O�qituvchilik
-6,Ta�mirlash / Usta xizmatlari
-7,Yetkazib berish (kuryer)
-8,Tikuvchilik / Libos tikish
-9,Sartaroshlik / Go�zallik xizmati
-11,Bola parvarishi / Enagalik
-12,Foto/Video xizmatlar
-13,Avtomobil xizmatlari (yuvish
-14,Dehqonchilik / Bog�dorchilik
-15,Xizmat safarlari yordamchisi
-16,Tarjimonlik / Hujjat ishlari
-17,Sotuv / Do�kon yordamchisi
-18,Dekor / Dizayn xizmatlari
-19,Boshqa
+2,Tozalik
+3,Oshpazlik / Ovqat tayyorlash
+4,Yuk tashish / Og�ir ishlar
+5,Repetitorlik / O�qituvchilik
+6,Ta�mirlash / Usta xizmatlari
+7,Yetkazib berish (kuryer)
+8,Tikuvchilik / Libos tikish
+9,Sartaroshlik / Go�zallik xizmati
+11,Bola parvarishi / Enagalik
+12,Foto/Video xizmatlar
+13,Avtomobil xizmatlari (yuvish
+14,Dehqonchilik / Bog�dorchilik
+15,Xizmat safarlari yordamchisi
+16,Tarjimonlik / Hujjat ishlari
+17,Sotuv / Do�kon yordamchisi
+18,Dekor / Dizayn xizmatlari
+19,Boshqa
+20,Qanchiq kuchuk

@@ -3,6 +3,7 @@ using ProTasker.Domain.Enum;
 using ProTasker.Domain.Models;
 using ProTasker.Menu;
 using ProTasker.Menu.AdminUIFolder;
+using ProTasker.Menu.MAIN;
 using ProTasker.Menu.UserUIFolder;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -14,12 +15,10 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
-        //AdminUI admin = new AdminUI();
+        var admin = new AdminUI("7806562984:AAH1bYTCWl3a3WMj9Wbru71CkevZJ8KyVuk");
 
-        //await admin.StartAsync();
+        var UserWorker = new MainMenu("8078697381:AAH8WOUIML8fd1AeLHOkgZeuy6uX8Qfp8PU");
 
-        UserUI user = new UserUI("7806562984:AAH1bYTCWl3a3WMj9Wbru71CkevZJ8KyVuk");
-
-        await user.StartAsync();
+        await Task.WhenAll(admin.StartAsync(), UserWorker.StartAsync());
     }
 }
