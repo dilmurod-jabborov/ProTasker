@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Telegram.Bot;
+﻿using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Polling;
@@ -11,14 +6,6 @@ using Telegram.Bot.Types.ReplyMarkups;
 using ProTasker.Data.IRepository;
 using ProTasker.Data.Repository;
 using ProTasker.DTOModels.Admin;
-using System.Reflection;
-using static System.Net.Mime.MediaTypeNames;
-using System.Net;
-using System.Collections.ObjectModel;
-using static System.Collections.Specialized.BitVector32;
-using System.Globalization;
-using System.Threading.Tasks.Dataflow;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ProTasker.Menu.AdminUIFolder;
 
@@ -31,9 +18,9 @@ public class AdminUI
     private readonly ICategoryService categoryService;
     private AdminViewModel adminViewModel;
 
-    public AdminUI()
+    public AdminUI(string token)
     {
-        botClient = new TelegramBotClient("7806562984:AAH1bYTCWl3a3WMj9Wbru71CkevZJ8KyVuk");
+        botClient = new TelegramBotClient(token);
         adminService = new AdminService();
         categoryService = new CategoryService();
         adminViewModel = new AdminViewModel();
